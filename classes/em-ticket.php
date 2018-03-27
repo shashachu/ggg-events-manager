@@ -582,7 +582,7 @@ class EM_Ticket extends EM_Object{
 		    }
 			ob_start();
 			?>
-			<select name="em_tickets[<?php echo $this->ticket_id ?>][spaces]" class="em-ticket-select" id="em-ticket-spaces-<?php echo $this->ticket_id ?>">
+			<select name="em_tickets[<?php echo $this->ticket_id ?>][spaces]" class="em-ticket-select <?php if (EM_Ticket::is_costumed_ticket($this->ticket_name)) echo "ggg-costumed-ticket"; ?>" id="em-ticket-spaces-<?php echo $this->ticket_id ?>">
 				<?php 
 					$min = ($this->ticket_min > 0) ? $this->ticket_min:1;
 					$max = ($this->ticket_max > 0) ? $this->ticket_max:get_option('dbem_bookings_form_max');
@@ -657,6 +657,10 @@ class EM_Ticket extends EM_Object{
 			$user_to_check = get_option('dbem_events_anonymous_user');
 		}
 		return $this->get_event()->can_manage('manage_bookings','manage_others_bookings', $user_to_check);
+	}
+
+	public static function is_costumed_ticket($ticket_name) {
+		return (strpos($ticket_name, 'Costume') !== false);
 	}
 	
 	/**

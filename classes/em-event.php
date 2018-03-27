@@ -1702,6 +1702,15 @@ class EM_Event extends EM_Object{
 		$format = get_option ( 'dbem_single_event_format' );
 		return apply_filters('em_event_output_single', $this->output($format, $target), $this, $target);
 	}
+
+	/**
+	 * Whether this event has any signups
+	 */
+	function ggg_has_signups() {
+		global $wpdb;
+		$sql = "SELECT COUNT(*) FROM " . EM_BOOKINGS_TABLE . " WHERE event_id=%d";
+		return $wpdb->get_var($wpdb->prepare($sql, $this->event_id));
+	}
 	
 	/**
 	 * Will output a event in the format passed in $format by replacing placeholders within the format.
@@ -1777,6 +1786,9 @@ class EM_Event extends EM_Object{
 					}elseif ($condition == 'has_image'){
 						//does this event have an image?
 						$show_condition = ( $this->get_image_url() != '' );
+					}elseif ($condition == 'ggg_has_signups'){
+						//has anyone signed up to troop this?
+						$show_condition = $this->ggg_has_signups();
 					}elseif ($condition == 'no_image'){
 						//does this event have an image?
 						$show_condition = ( $this->get_image_url() == '' );

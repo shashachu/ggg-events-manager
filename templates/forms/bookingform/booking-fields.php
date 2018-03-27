@@ -22,9 +22,9 @@
 	</p>
 	<?php do_action('em_register_form'); //careful if making an add-on, this will only be used if you're not using custom booking forms ?>					
 <?php endif; ?>		
-<p>
+<p id="ggg-costume-dropdown" style="display: none;">
 	<label for='booking_comment'><?php _e('Costume Type', 'events-manager') ?></label>
-	<select name="booking_comment">
+	<select name="booking_comment" id="ggg-booking-comment">
 		<option value=''>(Select)</option>
 		<?php
 		$costume_types = ggg_get_costume_list();
@@ -34,3 +34,15 @@
         ?>
 	</select>
 </p>
+
+<script type="text/javascript">
+	jQuery(document).ready( function($){
+		$('.ggg-costumed-ticket').change(function(){
+			if($(this).val() == '0') {
+				$('#ggg-costume-dropdown').hide();
+			} else {
+				$('#ggg-costume-dropdown').show();
+			}
+		});
+	});
+</script>
