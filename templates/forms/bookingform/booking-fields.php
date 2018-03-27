@@ -40,6 +40,7 @@
 		$('.ggg-costumed-ticket').change(function(){
 			if($(this).val() == '0') {
 				$('#ggg-costume-dropdown').hide();
+				$('#ggg-booking-comment').val("");
 			} else {
 				$('#ggg-costume-dropdown').show();
 			}
