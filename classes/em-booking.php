@@ -345,6 +345,14 @@ class EM_Booking extends EM_Object{
 				if ( !$EM_Ticket_Booking->validate() ){
 					$ticket_validation[] = false;
 					$result = $basic && !in_array(false,$ticket_validation);
+				} else {
+					$ticket_id = $EM_Ticket_Booking->ticket_id;
+					// Check if this is a costumed ticket
+					if ((strpos(EM_Ticket::get_ticket_name($ticket_id), 'Costumed') !== false)
+							&& empty($this->booking_comment)) {
+						$this->add_error(__( '<strong>ERROR</strong>: You must select a costume for a Costumed ticket.', 'events-manager') );
+						$ticket_validation[] = false;
+					}
 				}
 				$this->errors = array_merge($this->errors, $EM_Ticket_Booking->get_errors());
 			}

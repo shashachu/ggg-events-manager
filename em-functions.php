@@ -824,6 +824,13 @@ function em_ascii_encode($e){
     return $output;
 }
 
+/**
+ * Return list of available costumes for Costumed Ticket signups
+ */
+function ggg_get_costume_list() {
+	return array("AR","BH","CB","CC","CP","CT","CX","DS","DZ","GM","IC","ID","IG","IN","IS","RC","SL","ST","TA","TB","TC","TD","TI","TIr","TK","TR","TS","TX");
+}
+
 if( !function_exists( 'is_main_query' ) ){
 	/**
 	 * Substitutes the original function in 3.3 onwards, for backwards compatability (only created if not previously defined)

@@ -23,6 +23,14 @@
 	<?php do_action('em_register_form'); //careful if making an add-on, this will only be used if you're not using custom booking forms ?>					
 <?php endif; ?>		
 <p>
-	<label for='booking_comment'><?php _e('Comment', 'events-manager') ?></label>
-	<textarea name='booking_comment' rows="2" cols="20"><?php echo !empty($_REQUEST['booking_comment']) ? esc_attr($_REQUEST['booking_comment']):'' ?></textarea>
+	<label for='booking_comment'><?php _e('Costume Type', 'events-manager') ?></label>
+	<select name="booking_comment">
+		<option value=''>(Select)</option>
+		<?php
+		$costume_types = ggg_get_costume_list();
+		foreach ($costume_types as $costume) {
+			echo("<option " . (($_REQUEST['user_name'] == $costume) ? "selected" : "") . " value=\"" . $costume . "\">" . $costume . "</option>\n");
+		}
+        ?>
+	</select>
 </p>

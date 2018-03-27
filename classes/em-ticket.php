@@ -481,6 +481,12 @@ class EM_Ticket extends EM_Object{
 		}
 		return $this->bookings_count[$this->event_id];
 	}
+
+	public static function get_ticket_name($ticket_id) {
+		global $wpdb;
+		$sql = 'SELECT ticket_name FROM ' . EM_TICKETS_TABLE . ' WHERE ticket_id=%d';
+		return $wpdb->get_var($wpdb->prepare($sql, $ticket_id));
+	}
 	
 	/**
 	 * Smart event locator, saves a database read if possible.
