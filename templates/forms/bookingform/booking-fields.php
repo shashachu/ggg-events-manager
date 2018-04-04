@@ -29,7 +29,7 @@
 		<?php
 		$costume_types = ggg_get_costume_list();
 		foreach ($costume_types as $costume) {
-			echo("<option " . (($_REQUEST['user_name'] == $costume) ? "selected" : "") . " value=\"" . $costume . "\">" . $costume . "</option>\n");
+			echo("<option " . (($_REQUEST['booking_comment'] == $costume) ? "selected" : "") . " value=\"" . $costume . "\">" . $costume . "</option>\n");
 		}
         ?>
 	</select>
