@@ -27,6 +27,7 @@ if( count($EM_Bookings->bookings) > 0 ){
 	}
 
 	foreach ($bookings_by_ticket as $ticket_name => $bookings) {
+		$is_costumed = EM_Ticket::is_costumed_ticket($ticket_name);
 		echo '<b>' . $ticket_name . '</b>';
 		usort($bookings, function($a, $b) {
 			$cmp = strcmp($a['ticket_type'], $b['ticket_type']);
@@ -37,7 +38,11 @@ if( count($EM_Bookings->bookings) > 0 ){
 			}
 		});
 		foreach ($bookings as $booking) {
-			echo '<li>'. $booking['name'] . ' - ' . $booking['ticket_type'] . '</li>';
+			echo '<li>'. $booking['name'];
+			if ($is_costumed) {
+				echo ' - ' . $booking['ticket_type'];
+			}
+			echo '</li>';
 		}
 	}
 	?>
