@@ -8,7 +8,7 @@ if( count($EM_Bookings->bookings) > 0 ){
 	<?php
 	$bookings_by_ticket = array();
 	foreach( $EM_Bookings as $EM_Booking){ /* @var $EM_Booking EM_Booking */
-		if($EM_Booking->booking_status == 1 && !in_array($EM_Booking->get_person()->ID, $people) ){
+		if($EM_Booking->booking_status == 1){
 			$people[] = $EM_Booking->get_person()->ID;
 			$ticket_bookings = $EM_Booking->get_tickets_bookings();
 			$ticket_type = $EM_Booking->booking_comment;
@@ -17,18 +17,17 @@ if( count($EM_Bookings->bookings) > 0 ){
 					$ticket_name = EM_Ticket::get_ticket_name($EM_Ticket_Booking->ticket_id);
 					if (empty($ticket_type) && count($ticket_bookings) > 0) {
 						$ticket_type = $ticket_name;
-						break;
 					}
+					$bookings_by_ticket[$ticket_name][] = array('name' => $EM_Booking->get_person()->get_name(),
+							'ticket_type' => $ticket_type,
+							'email' => $EM_Booking->person->user_email);
 				}
 			}
-			$bookings_by_ticket[$ticket_name][] = array('name' => $EM_Booking->get_person()->get_name(),
-				'ticket_type' => $ticket_type,
-				'email' => $EM_Booking->person->user_email);
 		}
 	}
 
 	foreach ($bookings_by_ticket as $ticket_name => $bookings) {
-		echo '<h4>' . $ticket_name . '</h4>';
+		echo '<b>' . $ticket_name . '</b>';
 		usort($bookings, function($a, $b) {
 			$cmp = strcmp($a['ticket_type'], $b['ticket_type']);
 			if ($cmp == 0) {
