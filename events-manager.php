@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: Events Manager
-Version: 5.9.5
-Plugin URI: http://wp-events-plugin.com
-Description: Event registration and booking management for WordPress. Recurring events, locations, google maps, rss, ical, booking registration and more!
-Author: Marcus Sykes
+Plugin Name: GGG Events Manager
+Version: 5.9.51
+Plugin URI: https://github.com/shashachu/ggg-events-manager/
+Description: Customized version of the Events Manager plugin by Marcus Sykes, tailored towards trooping signups for the Golden Gate Garrison.
+Author: Marcus Sykes, Sha Sha Chu
 Author URI: http://wp-events-plugin.com
-Text Domain: events-manager
+Text Domain: ggg-events-manager
 */
 
 /*
@@ -27,8 +27,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+require 'plugin-update-checker/plugin-update-checker.php';
+$myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+	'https://github.com/shashachu/ggg-events-manager/',
+	__FILE__,
+	'ggg-events-manager'
+);
+
+$myUpdateChecker->getVcsApi()->enableReleaseAssets();
+
 // Setting constants
-define('EM_VERSION', 5.95); //self expanatory
+define('EM_VERSION', 5.951); //self expanatory
 define('EM_PRO_MIN_VERSION', 2.64); //self expanatory
 define('EM_PRO_MIN_VERSION_CRITICAL', 2.377); //self expanatory
 define('EM_DIR', dirname( __FILE__ )); //an absolute path to this directory
