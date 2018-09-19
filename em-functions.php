@@ -828,10 +828,11 @@ function em_ascii_encode($e){
  * Return list of available costumes for Costumed Ticket signups
  */
 function ggg_get_costume_list() {
-	return array("TK: Stormtrooper","AR: ARC Trooper","BH - Bounty Hunter","CB: Kaskyyyk Trooper","CC: Clone Commander",
-	"CP: Clone Pilot","CT: RotS Clone Trooper","CX: Special Ops Clone Troopers","DS: Dark Side Adept","DZ: Denizen","GM: Galactic Marine","IC: Imperial Crew","ID: Imperial Officer","IG: Imperial Gunner","IN: Imperial Navy",
-	"IS: AT-ST Driver","RC: Republic Commando","SL: Sith","ST: Shoretrooper","TA: AT-AT Driver","TB: Scout Trooper","TC: Clone Trooper","TD: Sandtrooper","TI: TIE Pilot","TR: Royal Guard",
-	"TS: Snowtrooper","TX: Special Operations");
+	global $wpdb;
+	$results = $wpdb->get_results("SELECT costume_name FROM ".EM_COSTUMES_TABLE." ORDER BY costume_name");
+	return array_map(function($result) {
+		return $result->costume_name;
+	}, $results);
 }
 
 if( !function_exists( 'is_main_query' ) ){

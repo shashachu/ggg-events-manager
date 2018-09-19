@@ -24,6 +24,7 @@ function em_install() {
 			  	em_create_bookings_table();
 				em_create_tickets_table();
 				em_create_tickets_bookings_table();
+				em_create_costumes_table();
 		 		delete_option('em_ms_global_install'); //in case for some reason the user changed global settings
 		 	}else{
 		 		update_option('em_ms_global_install',1); //in case for some reason the user changes global settings in the future
@@ -353,6 +354,60 @@ function em_create_tickets_bookings_table() {
 	dbDelta($sql);
 	em_sort_out_table_nu_keys($table_name, array('booking_id','ticket_id'));
 	if( em_check_utf8mb4_tables() ) maybe_convert_table_to_utf8mb4( $table_name );
+}
+
+// Create the default costume lists table() {
+function em_create_costumes_table() {
+	global  $wpdb, $user_level;
+	$table_name = $wpdb->prefix.'em_costumes';
+
+	// Creating the events table
+	$sql = "CREATE TABLE {$table_name} (
+			costume_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			costume_name TINYTEXT NOT NULL,
+			PRIMARY KEY  (costume_id)
+		) DEFAULT CHARSET=utf8 ;";
+
+	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+	dbDelta($sql);
+	em_sort_out_table_nu_keys($table_name, array('costume_id'));
+	if( em_check_utf8mb4_tables() ) maybe_convert_table_to_utf8mb4( $table_name );
+
+	$costumes = array(
+		"TK: Stormtrooper",
+		"AR: ARC Trooper",
+		"BH - Bounty Hunter",
+		"CB: Kaskyyyk Trooper",
+		"CC: Clone Commander",
+		"CP: Clone Pilot",
+		"CT: RotS Clone Trooper",
+		"CX: Special Ops Clone Troopers",
+		"DS: Dark Side Adept",
+		"DZ: Denizen",
+		"GM: Galactic Marine",
+		"IC: Imperial Crew",
+		"ID: Imperial Officer",
+		"IG: Imperial Gunner",
+		"IN: Imperial Navy",
+		"IS: AT-ST Driver",
+		"RC: Republic Commando",
+		"SL: Sith",
+		"ST: Shoretrooper",
+		"TA: AT-AT Driver",
+		"TB: Scout Trooper",
+		"TC: Clone Trooper",
+		"TD: Sandtrooper",
+		"TI: TIE Pilot",
+		"TR: Royal Guard",
+		"TS: Snowtrooper",
+		"TX: Special Operations");
+	$costumes = array_map(function ($c) use ($wpdb) {
+		return $wpdb->prepare("('%s')", $c);
+	}, $costumes);
+	if( count($costumes) > 0 ){
+		$result = $wpdb->query("TRUNCATE TABLE `".$table_name."`");
+		$result = $wpdb->query("INSERT INTO ".$table_name." (costume_name) VALUES ".implode(',',$costumes));
+	}
 }
 
 function em_add_options() {
@@ -1090,6 +1145,9 @@ function em_upgrade_current_installation(){
 		$message2 = sprintf($message2, '<a href="https://wp-events-plugin.com/documentation/google-maps/api-usage/?utm_source=plugin&utm_source=medium=settings&utm_campaign=gmaps-update">'.esc_html__('documentation', 'events-manager') .'</a>');
 		$EM_Admin_Notice = new EM_Admin_Notice(array( 'name' => 'gdpr_update', 'who' => 'admin', 'where' => 'all', 'message' => "<p>$message</p><p>$message2</p>" ));
 		EM_Admin_Notices::add($EM_Admin_Notice, is_multisite());
+	}
+	if( get_option('dbem_version') != '' && get_option('dbem_version') < 5.951 ){
+		em_create_costumes_table();
 	}
 }
 
