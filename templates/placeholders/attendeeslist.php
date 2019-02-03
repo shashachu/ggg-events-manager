@@ -54,7 +54,7 @@ if( count($EM_Bookings->bookings) > 0 ){
 			foreach ($bookings_by_ticket as $ticket_name => $bookings) {
 				foreach ($bookings as $booking) {
 					if (!$firstElem) {
-						echo ',';
+						echo '; ';
 					} else {
 						$firstElem = false;
 					}
