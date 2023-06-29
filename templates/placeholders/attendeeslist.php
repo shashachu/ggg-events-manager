@@ -15,7 +15,7 @@ if( count($EM_Bookings->bookings) > 0 ){
 			foreach ($EM_Booking->get_tickets_bookings()->tickets_bookings as $EM_Ticket_Booking) {
 				if ($EM_Ticket_Booking->get_spaces() > 0) {
 					$ticket_name = EM_Ticket::get_ticket_name($EM_Ticket_Booking->ticket_id);
-					if (empty($ticket_type) && count($ticket_bookings) > 0) {
+					if (empty($ticket_type) && count((array)$ticket_bookings) > 0) {
 						$ticket_type = $ticket_name;
 					}
 					$bookings_by_ticket[$ticket_name][] = array('name' => $EM_Booking->get_person()->get_name(),
