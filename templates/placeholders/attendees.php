@@ -2,7 +2,7 @@
 /* @var $EM_Event EM_Event */
 $people = array();
 $EM_Bookings = $EM_Event->get_bookings();
-if( count($EM_Bookings->bookings) > 0 ){
+if( count((array)$EM_Bookings->bookings) > 0 ){
 	?>
 	<ul class="event-attendees">
 	<?php
