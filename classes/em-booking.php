@@ -342,7 +342,7 @@ class EM_Booking extends EM_Object{
 			$this->add_error(get_option('dbem_booking_feedback_min_space'));
 		}
 		//step 2, tickets bookings info
-		if( count($this->get_tickets_bookings()) > 0 ){
+		if( count((array)$this->get_tickets_bookings()) > 0 ){
 			$ticket_validation = array();
 			foreach($this->get_tickets_bookings()->tickets_bookings as $EM_Ticket_Booking){ /* @var $EM_Ticket_Booking EM_Ticket_Booking */
 				if ( !$EM_Ticket_Booking->validate() ){
