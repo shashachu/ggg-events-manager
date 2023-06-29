@@ -87,7 +87,7 @@ class EM_Tickets extends EM_Object implements Iterator, Countable {
 	 * @return EM_Ticket
 	 */
 	function get_first(){
-		if( count($this->tickets) > 0 ){
+		if( count((array)$this->tickets) > 0 ){
 			foreach($this->tickets as $EM_Ticket){
 				return $EM_Ticket;
 			}
@@ -111,7 +111,7 @@ class EM_Tickets extends EM_Object implements Iterator, Countable {
 				$ticket_ids[] = $EM_Ticket->ticket_id;
 			}
 			//check that tickets don't have bookings
-			if(count($ticket_ids) > 0){
+			if(count((array)$ticket_ids) > 0){
 				$bookings = $wpdb->get_var("SELECT COUNT(*) FROM ". EM_TICKETS_BOOKINGS_TABLE." WHERE ticket_id IN (".implode(',',$ticket_ids).")");
 				if( $bookings > 0 ){
 					$result = false;
@@ -170,7 +170,7 @@ class EM_Tickets extends EM_Object implements Iterator, Countable {
 			));
 			$this->tickets[] = $EM_Ticket;
 		}
-		return apply_filters('em_tickets_get_post', count($this->errors) == 0, $this);
+		return apply_filters('em_tickets_get_post', count((array)$this->errors) == 0, $this);
 	}
 	
 	/**
@@ -183,7 +183,7 @@ class EM_Tickets extends EM_Object implements Iterator, Countable {
 				$this->add_error($EM_Ticket->get_errors());
 			} 
 		}
-		return apply_filters('em_tickets_validate', count($this->errors) == 0, $this);
+		return apply_filters('em_tickets_validate', count((array)$this->errors) == 0, $this);
 	}
 	
 	/**
@@ -262,7 +262,7 @@ class EM_Tickets extends EM_Object implements Iterator, Countable {
     }
     //Countable Implementation
     public function count(){
-    	return count($this->tickets);
+    	return count((array)$this->tickets);
     }
 }
 ?>
