@@ -192,7 +192,7 @@ class EM_Event_Posts_Admin{
 	    	'location' => __('Location','events-manager'),
 	    	'date-time' => __('Date and Time','events-manager'),
 	    	'author' => __('Owner','events-manager'),
-		'rsvp-date' => __('RSVP Date','events-manager'),
+			'booking-cutoff' => __('Booking Cutoff','events-manager'),
 	    	'extra' => ''
 	    ));
 	    if( !get_option('dbem_locations_enabled') ){
@@ -237,9 +237,9 @@ class EM_Event_Posts_Admin{
 				}
 				if( $EM_Event->get_timezone()->getName() != EM_DateTimeZone::create()->getName() ) echo '<span class="dashicons dashicons-info" style="font-size:16px; color:#ccc; padding-top:2px;" title="'.esc_attr(str_replace('_', ' ', $EM_Event->event_timezone)).'"></span>';
 				break;
-			case 'rsvp-date':
-				$localized_rsvp = $EM_Event->rsvp_end()->i18n(get_option('date_format'));
-				echo $localized_rsvp;
+			case 'booking-cutoff':
+				$localized_cutoff = $EM_Event->rsvp_end()->i18n(get_option('date_format'));
+				echo $localized_cutoff;
 				break;
 			case 'extra':
 				if( get_option('dbem_rsvp_enabled') == 1 && !empty($EM_Event->event_rsvp) && $EM_Event->can_manage('manage_bookings','manage_others_bookings')){
@@ -278,7 +278,7 @@ class EM_Event_Posts_Admin{
 	
 	public static function sortable_columns( $columns ){
 		$columns['date-time'] = 'date-time';
-		$columns['rsvp-date'] = 'rsvp-date';
+		$columns['booking-cutoff'] = 'booking-cutoff';
 		return $columns;
 	}
 	
