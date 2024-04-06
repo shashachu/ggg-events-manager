@@ -35,7 +35,8 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 	__FILE__,
 	'ggg-events-manager'
 );
-
+// TODO: Remove this branch check
+$myUpdateChecker->setBranch('5.9.56-dev');
 $myUpdateChecker->getVcsApi()->enableReleaseAssets();
 
 // Setting constants
