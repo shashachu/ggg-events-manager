@@ -113,6 +113,9 @@ See our [FAQ](http://wp-events-plugin.com/documentation/faq/) page, which is upd
 = 5.9.56 =
 * Added RSVP Date for ECs
 
+= 5.9.55 =
+* More PHP8 support
+
 = 5.9.54 =
 * Bugfix for PHP8 support
 

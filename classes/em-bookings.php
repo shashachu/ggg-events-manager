@@ -180,7 +180,7 @@ class EM_Bookings extends EM_Object implements Iterator{
 		}else{
 			if( is_numeric($this->event_id) && $this->event_id > 0 ){
 				return em_get_event($this->event_id, 'event_id');
-			}elseif( count($this->bookings) > 0 ){
+			}elseif( is_array($this->bookings) ){
 				foreach($this->bookings as $EM_Booking){
 					/* @var $EM_Booking EM_Booking */
 					return em_get_event($EM_Booking->event_id, 'event_id');
