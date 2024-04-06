@@ -194,8 +194,8 @@ function em_create_events_table() {
 			$wpdb->query("ALTER TABLE $table_name CHANGE event_end_time event_end_time time NULL DEFAULT NULL");
 			$wpdb->query("ALTER TABLE $table_name CHANGE event_start_date event_start_date date NULL DEFAULT NULL");
 		}
-		if( get_option('dbem_version') != '' && get_option('dbem_version') < 5.955 ){
-			// If updating from version < 5.955, add in the RSVP Date for ECs
+		if( get_option('dbem_version') != '' && get_option('dbem_version') < 5.956 ){
+			// If updating from version < 5.956, add in the RSVP Date for ECs
 			$wpdb->query("ALTER TABLE $table_name ADD event_ec_rsvp_date date NULL DEFAULT NULL");
 		}
 		dbDelta($sql);
