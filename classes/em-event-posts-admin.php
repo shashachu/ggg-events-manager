@@ -193,6 +193,7 @@ class EM_Event_Posts_Admin{
 	    	'date-time' => __('Date and Time','events-manager'),
 	    	'author' => __('Owner','events-manager'),
 			'booking-cutoff' => __('Booking Cutoff','events-manager'),
+			'rsvp-date' => __('RSVP Date','events-manager'),
 	    	'extra' => ''
 	    ));
 	    if( !get_option('dbem_locations_enabled') ){
@@ -241,6 +242,10 @@ class EM_Event_Posts_Admin{
 				$localized_cutoff = $EM_Event->rsvp_end()->i18n(get_option('date_format'));
 				echo $localized_cutoff;
 				break;
+			case 'rsvp-date':
+				$localized_cutoff = $EM_Event->ec_rsvp()->i18n(get_option('date_format'));
+				echo $localized_cutoff;
+				break;
 			case 'extra':
 				if( get_option('dbem_rsvp_enabled') == 1 && !empty($EM_Event->event_rsvp) && $EM_Event->can_manage('manage_bookings','manage_others_bookings')){
 					?>
@@ -279,6 +284,7 @@ class EM_Event_Posts_Admin{
 	public static function sortable_columns( $columns ){
 		$columns['date-time'] = 'date-time';
 		$columns['booking-cutoff'] = 'booking-cutoff';
+		$columns['rsvp-date'] = 'rsvp-date';
 		return $columns;
 	}
 	
