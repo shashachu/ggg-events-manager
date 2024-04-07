@@ -7,7 +7,7 @@ $required = apply_filters('em_required_html','<i>*</i>');
 		<span class="em-ec-rsvp-date-normal">
 			<span class="em-date-single">
 				<input id="em-ec-rsvp-date-loc" class="em-date-input-loc" type="text" />
-				<input id="em-ec-rsvp-date" class="em-date-input" type="hidden" name="event_ec_rsvp_date" value="<?php echo $EM_Event->event_ec_rsvp_date; ?>" />
+				<input id="em-ec-rsvp-date" class="em-date-input" type="hidden" name="event_ec_rsvp_date" value="<?php echo $EM_Event->ec_rsvp(); ?>" />
 			</span>
 		</span>
 	</p>

@@ -877,8 +877,12 @@ class EM_Event extends EM_Object{
 				$this->add_error(__('Dates must have correct formatting. Please use the date picker provided.','events-manager'));
 		    }
 		}
-		if( !empty($this->event_ec_rsvp_date) && !preg_match('/\d{4}-\d{2}-\d{2}/', $this->event_ec_rsvp_date) ){
-			$this->add_error(__('RSVP Dates must have correct formatting. Please use the date picker provided.','events-manager'));
+		if (!empty($this->event_ec_rsvp_date)) {
+			if (!preg_match('/\d{4}-\d{2}-\d{2}/', $this->event_ec_rsvp_date)) {
+				$this->add_error(__('RSVP Dates must have correct formatting. Please use the date picker provided.','events-manager'));
+			} elseif ($this->ec_rsvp()->getTimestamp() > $this->start()->getTimestamp()) {
+				$this->add_error(__('RSVP Date cannot be after the event start.','events-manager'));
+			}
 		}
 		if( get_option('dbem_locations_enabled') && empty($this->location_id) ){ //location ids don't need validating as we're not saving a location
 			if( get_option('dbem_require_location',true) || $this->location_id !== 0 ){
