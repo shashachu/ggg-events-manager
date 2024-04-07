@@ -62,6 +62,13 @@ if( !empty($_REQUEST['success']) ){
 		?>
 		</div>
 
+		<h3 class="event-form-when"><?php esc_html_e( 'RSVP Date', 'events-manager'); ?></h3>
+		<div class="inside event-form-when">
+		<?php 
+			em_locate_template('forms/event/when-ec-rsvp.php',true);
+		?>
+		</div>
+
 		<?php if( get_option('dbem_locations_enabled') ): ?>
 		<h3 class="event-form-where"><?php esc_html_e( 'Where', 'events-manager'); ?></h3>
 		<div class="inside event-form-where">

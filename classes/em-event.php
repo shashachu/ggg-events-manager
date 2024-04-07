@@ -118,7 +118,7 @@ class EM_Event extends EM_Object{
 	var $recurrence_id;
 	var $event_status;
 	var $blog_id;
-	var $group_id;	
+	var $group_id;
 	/**
 	 * Populated with the non-hidden event post custom fields (i.e. not starting with _) 
 	 * @var array
@@ -136,6 +136,9 @@ class EM_Event extends EM_Object{
 	var $event_owner_anonymous;
 	var $event_owner_name;
 	var $event_owner_email;
+
+	protected $event_ec_rsvp_date; // String time
+	protected $ec_rsvp_datetime; // EM_Datetime - for cache?
 	/**
 	 * Previously used to give this object shorter property names for db values (each key has a name) but this is now deprecated, use the db field names as properties. This propertey provides extra info about the db fields.
 	 * @var array
@@ -173,6 +176,7 @@ class EM_Event extends EM_Object{
 		'recurrence_byday' => array( 'name'=>'byday', 'type'=>'%s', 'null'=>true ), //if weekly or monthly, what days of the week?
 		'recurrence_byweekno' => array( 'name'=>'byweekno', 'type'=>'%d', 'null'=>true ), //if monthly which week (-1 is last)
 		'recurrence_rsvp_days' => array( 'name'=>'recurrence_rsvp_days', 'type'=>'%d', 'null'=>true ), //days before or after start date to generat bookings cut-off date
+		'event_ec_rsvp_date' => array( 'name'=>'ec_rsvp_date', 'type'=>'%s', 'null'=>true ),
 	);
 	var $post_fields = array('event_slug','event_owner','event_name','event_private','event_status','event_attributes','post_id','post_content'); //fields that won't be taken from the em_events table anymore
 	var $recurrence_fields = array('recurrence', 'recurrence_interval', 'recurrence_freq', 'recurrence_days', 'recurrence_byday', 'recurrence_byweekno', 'recurrence_rsvp_days');
@@ -382,7 +386,7 @@ class EM_Event extends EM_Object{
 	            $this->event_date_created = $row->event_date_created;
 	            return $this->$var;
 	        }
-	    }elseif( in_array($var, array('event_start_date', 'event_start_time', 'event_end_date', 'event_end_time', 'event_rsvp_date', 'event_rsvp_time')) ){
+	    }elseif( in_array($var, array('event_start_date', 'event_start_time', 'event_end_date', 'event_end_time', 'event_rsvp_date', 'event_rsvp_time', 'event_ec_rsvp_date')) ){
 	    	return $this->$var;
 	    }elseif( $var == 'event_timezone' ){
 	    	return $this->get_timezone()->getName();
@@ -395,7 +399,7 @@ class EM_Event extends EM_Object{
 	}
 	
 	public function __set( $prop, $val ){
-		if( $prop == 'event_start_date' || $prop == 'event_end_date' || $prop == 'event_rsvp_date' ){
+		if( $prop == 'event_start_date' || $prop == 'event_end_date' || $prop == 'event_rsvp_date' || $prop == 'event_ec_rsvp_date' ){
 			//if date is valid, set it, if not set it to null
 			$this->$prop = preg_match('/^\d{4}-\d{2}-\d{2}$/', $val) ? $val : null;
 			if( $prop == 'event_start_date') $this->start = $this->event_start = null;
@@ -427,7 +431,7 @@ class EM_Event extends EM_Object{
 	}
 	
 	public function __isset( $prop ){
-		if( in_array($prop, array('event_start_date', 'event_end_date', 'event_start_time', 'event_end_time', 'event_rsvp_date', 'event_rsvp_time', 'event_start', 'event_end')) ){
+		if( in_array($prop, array('event_start_date', 'event_end_date', 'event_start_time', 'event_end_time', 'event_rsvp_date', 'event_rsvp_time', 'event_start', 'event_end', 'event_ec_rsvp_date')) ){
 			return !empty($this->$prop);
 		}elseif( $prop == 'event_timezone' ){
 			return true;
@@ -633,6 +637,15 @@ class EM_Event extends EM_Object{
 			$this->location_id = null;
 			$this->get_location()->get_post(false);
 			$this->get_location()->post_content = ''; //reset post content, as it'll grab the event description otherwise
+		}
+
+		// RSVP Info (for ECs)
+		if( empty($_POST['event_ec_rsvp_date']) ){
+			// If it's empty, default to the event start date
+			$this->event_ec_rsvp_date = $this->event_start_date;
+		}else {
+			$this->event_ec_rsvp_date = wp_kses_data($_POST['event_ec_rsvp_date']);
+			$this->ec_rsvp_datetime = null; // reset the cached EM_DateTime object
 		}
 		
 		//Bookings
@@ -863,6 +876,13 @@ class EM_Event extends EM_Object{
 		    if( !empty($this->event_rsvp_date) && !preg_match('/\d{4}-\d{2}-\d{2}/', $this->event_rsvp_date) ){
 				$this->add_error(__('Dates must have correct formatting. Please use the date picker provided.','events-manager'));
 		    }
+		}
+		if (!empty($this->event_ec_rsvp_date)) {
+			if (!preg_match('/\d{4}-\d{2}-\d{2}/', $this->event_ec_rsvp_date)) {
+				$this->add_error(__('RSVP Dates must have correct formatting. Please use the date picker provided.','events-manager'));
+			} elseif ($this->ec_rsvp()->getTimestamp() > $this->start()->getTimestamp()) {
+				$this->add_error(__('RSVP Date cannot be after the event start.','events-manager'));
+			}
 		}
 		if( get_option('dbem_locations_enabled') && empty($this->location_id) ){ //location ids don't need validating as we're not saving a location
 			if( get_option('dbem_require_location',true) || $this->location_id !== 0 ){
@@ -1401,6 +1421,31 @@ class EM_Event extends EM_Object{
 	 */
 	public function end( $utc_timezone = false ){
 		return apply_filters('em_event_end', $this->get_datetime('end', $utc_timezone), $this);
+	}
+
+	/**
+	 * Returns an EM_DateTime object of the EC RSVP date in local timezone of event
+	 * @param bool $utc_timezone Returns EM_DateTime with UTC timezone if set to true, returns local timezone by default.
+	 * @return EM_DateTime
+	 * @see EM_Event::get_datetime()
+	 */
+	public function ec_rsvp( $utc_timezone = false ){
+		if( empty($this->ec_rsvp_datetime) || !$this->ec_rsvp_datetime->valid ){
+			if( !empty($this->event_ec_rsvp_date ) ){
+				$this->ec_rsvp_datetime = new EM_DateTime($this->event_ec_rsvp_date, $this->event_timezone);
+				if( !$this->ec_rsvp_datetime->valid ){
+					//invalid date will revert to start time
+					$this->ec_rsvp_datetime = $this->start()->copy();
+			    }
+			}
+			else {
+				$this->ec_rsvp_datetime = $this->start()->copy();
+			}
+		}
+		//Set to UTC timezone if requested, local by default
+		$tz = $utc_timezone ? 'UTC' : $this->event_timezone;
+		$this->ec_rsvp_datetime->setTimezone($tz);
+		return $this->ec_rsvp_datetime;
 	}
 	
 	/**
@@ -2322,6 +2367,10 @@ class EM_Event extends EM_Object{
 						$img_url = is_ssl() ? 'https://'.$img_url:'http://'.$img_url;
 						$replace = '<a href="'.esc_url($replace).'" target="_blank"><img src="'.esc_url($img_url).'" alt="0" border="0"></a>';
 					}
+					break;
+				case "#_RSVPDATE":
+					$replace_format = em_get_date_format();
+					$replace = $this->ec_rsvp()->format($replace_format);
 					break;
 				default:
 					$replace = $full_result;

@@ -268,6 +268,7 @@ class EM_Event_Post_Admin{
 			add_meta_box('em-event-anonymous', __('Anonymous Submitter Info','events-manager'), array('EM_Event_Post_Admin','meta_box_anonymous'),EM_POST_TYPE_EVENT, 'side','high');
 		}
 		add_meta_box('em-event-when', __('When','events-manager'), array('EM_Event_Post_Admin','meta_box_date'),EM_POST_TYPE_EVENT, 'side','high');
+		add_meta_box('em-event-when-ec-rsvp', __('RSVP Date','events-manager'), array('EM_Event_Post_Admin','meta_box_ec_rsvp_date'),EM_POST_TYPE_EVENT, 'side','high');
 		if(get_option('dbem_locations_enabled', true)){
 			add_meta_box('em-event-where', __('Where','events-manager'), array('EM_Event_Post_Admin','meta_box_location'),EM_POST_TYPE_EVENT, 'normal','high');
 		}
@@ -316,6 +317,12 @@ class EM_Event_Post_Admin{
 		//create meta box check of date nonce
 		?><input type="hidden" name="_emnonce" value="<?php echo wp_create_nonce('edit_event'); ?>" /><?php
 		em_locate_template('forms/event/when.php', true);
+	}
+
+	public static function meta_box_ec_rsvp_date(){
+		//create meta box check of date nonce
+		?><input type="hidden" name="_emnonce" value="<?php echo wp_create_nonce('edit_event'); ?>" /><?php
+		em_locate_template('forms/event/when-ec-rsvp.php', true);
 	}
 	
 	public static function meta_box_bookings_stats(){
