@@ -645,7 +645,7 @@ class EM_Event extends EM_Object{
 			$this->event_ec_rsvp_date = $this->event_start_date;
 		}else {
 			$this->event_ec_rsvp_date = wp_kses_data($_POST['event_ec_rsvp_date']);
-			$this->ec_rsvp_datetime = null // reset the cached EM_DateTime object
+			$this->ec_rsvp_datetime = null; // reset the cached EM_DateTime object
 		}
 		
 		//Bookings

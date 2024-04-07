@@ -103,6 +103,7 @@ function em_docs_init($force_init = false){
 							'#_EVENTCATEGORIES' => array( 'desc' => 'Shows a list of category links this event belongs to.' ),
 							'#_EVENTCATEGORIESIMAGES'  => array( 'desc' => 'Shows a list of category images this event belongs to. Categories without an image will be ignored.' ),
 							'#_EVENTTAGS' => array( 'desc' => 'Shows a list of tag links this event belongs to.' ),
+							'#_RSVPDATE' => array( 'desc' => 'Displays the RSVP Date for this event. If not specified, will default to the event start date.' ),
 						)
 					),
 					'Date and Times' => array(
