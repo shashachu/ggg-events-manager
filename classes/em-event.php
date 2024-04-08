@@ -1763,12 +1763,28 @@ class EM_Event extends EM_Object{
 	}
 
 	/**
-	 * Whether this event has any signups
+	 * Whether this event has any signups (pending or approved)
 	 */
 	function ggg_has_signups() {
 		global $wpdb;
 		$sql = "SELECT COUNT(*) FROM " . EM_BOOKINGS_TABLE . " WHERE event_id=%d";
-		return $wpdb->get_var($wpdb->prepare($sql, $this->event_id));
+		return $wpdb->get_var($wpdb->prepare($sql, $this->event_id)) > 0;
+	}
+
+	/**
+	 * Whether this event is Spec Ops
+	 */
+	function ggg_is_specops() {
+		if( get_option('dbem_categories_enabled') ) {
+			$categories = $this->get_categories();
+			foreach ($cat in $categories) {
+				// TODO shasha: This is brittle
+				if ($cat->$name == "Spec Ops") {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -1849,6 +1865,15 @@ class EM_Event extends EM_Object{
 					}elseif ($condition == 'ggg_has_signups'){
 						//has anyone signed up to troop this?
 						$show_condition = $this->ggg_has_signups();
+					}elseif ($condition == 'ggg_has_no_signups'){
+						//has anyone not signed up to troop this?
+						$show_condition = !$this->ggg_has_signups();
+					}elseif ($condition == 'ggg_is_specops'){
+						//is this a specops troop?
+						$show_condition = $this->ggg_is_specops();
+					}elseif ($condition == 'ggg_is_not_specops'){
+						//is this a specops troop?
+						$show_condition = !$this->ggg_is_specops();
 					}elseif ($condition == 'no_image'){
 						//does this event have an image?
 						$show_condition = ( $this->get_image_url() == '' );
