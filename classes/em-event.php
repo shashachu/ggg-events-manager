@@ -1777,9 +1777,10 @@ class EM_Event extends EM_Object{
 	function ggg_is_specops() {
 		if( get_option('dbem_categories_enabled') ) {
 			$categories = $this->get_categories();
-			foreach ($cat in $categories) {
+			foreach ($categories as $cat) {
 				// TODO shasha: This is brittle
-				if ($cat->$name == "Spec Ops") {
+				$name = $cat->output("#_CATEGORYNAME");
+				if ($name == "Spec Ops") {
 					return true;
 				}
 			}
