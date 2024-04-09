@@ -1765,17 +1765,32 @@ class EM_Event extends EM_Object{
 	/**
 	 * Whether this event has any signups (pending or approved)
 	 */
-	function ggg_has_signups() {
-		global $wpdb;
-		$sql = "SELECT COUNT(*) FROM " . EM_BOOKINGS_TABLE . " WHERE event_id=%d";
-		return $wpdb->get_var($wpdb->prepare($sql, $this->event_id)) > 0;
+	function ggg_has_any_signups() {
+		$EM_Bookings = $this->get_bookings();
+		if( count($EM_Bookings->bookings) > 0 ){
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Whether this event has any approved signups
+	 */
+	function ggg_has_approved_signups() {
+		$EM_Bookings = $this->get_bookings();
+		foreach( $EM_Bookings as $EM_Booking){
+			if($EM_Booking->booking_status == 1){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
 	 * Whether this event has any pending signups
 	 */
 	function ggg_has_pending_signups() {
-		$EM_Bookings = $EM_Event->get_bookings();
+		$EM_Bookings = $this->get_bookings();
 		foreach( $EM_Bookings as $EM_Booking){
 			if($EM_Booking->is_pending()){
 				return true;
@@ -1877,8 +1892,14 @@ class EM_Event extends EM_Object{
 						//does this event have an image?
 						$show_condition = ( $this->get_image_url() != '' );
 					}elseif ($condition == 'ggg_has_signups'){
-						//has anyone signed up to troop this?
-						$show_condition = $this->ggg_has_signups();
+						// DEPRECATED. Renamed to ggg_has_any_signups
+						$show_condition = $this->ggg_has_any_signups();
+					}elseif ($condition == 'ggg_has_any_signups'){
+						// DEPRECATED. Renamed to ggg_has_any_signups
+						$show_condition = $this->ggg_has_any_signups();
+					}elseif ($condition == 'ggg_has_approved_signups'){
+						// returns true if there are approved signups
+						$show_condition = $this->ggg_has_approved_signups();
 					}elseif ($condition == 'ggg_has_pending_signups'){
 						//has anyone signed up to troop this (but isn't yet approved)?
 						$show_condition = $this->ggg_has_pending_signups();
