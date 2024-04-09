@@ -1772,6 +1772,19 @@ class EM_Event extends EM_Object{
 	}
 
 	/**
+	 * Whether this event has any pending signups
+	 */
+	function ggg_has_pending_signups() {
+		$EM_Bookings = $EM_Event->get_bookings();
+		foreach( $EM_Bookings as $EM_Booking){
+			if($EM_Booking->is_pending()){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Whether this event is Spec Ops
 	 */
 	function ggg_is_specops() {
@@ -1866,6 +1879,9 @@ class EM_Event extends EM_Object{
 					}elseif ($condition == 'ggg_has_signups'){
 						//has anyone signed up to troop this?
 						$show_condition = $this->ggg_has_signups();
+					}elseif ($condition == 'ggg_has_pending_signups'){
+						//has anyone signed up to troop this (but isn't yet approved)?
+						$show_condition = $this->ggg_has_pending_signups();
 					}elseif ($condition == 'ggg_has_no_signups'){
 						//has anyone not signed up to troop this?
 						$show_condition = !$this->ggg_has_signups();
