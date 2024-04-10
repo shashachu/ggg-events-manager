@@ -34,9 +34,84 @@ class EM_Event_Post {
 			add_filter('get_the_date',array('EM_Event_Post','the_date'),10,3);
 			add_filter('get_the_time',array('EM_Event_Post','the_time'),10,3);
 			add_filter('the_category',array('EM_Event_Post','the_category'),10,3);
-		}
+		} else {
+			add_filter('posts_request', array('EM_Event_post', 'posts_request'));
+			add_filter('posts_clauses', array('EM_Event_post', 'posts_clauses'));
+		  }
 		add_action('parse_query', array('EM_Event_Post','parse_query'));
 		add_action('publish_future_post',array('EM_Event_Post','publish_future_post'),10,1);
+	}
+
+	public static function posts_request($request) {
+		$hack = EM_Event_Post::should_hack_query($where);
+		if (!empty($hack)) {
+			$request = preg_replace("/1=1/m", "", $request);
+		}
+		//echo $request;
+		return $request;
+ 	}
+
+	/**
+	 * Hacks the query for sorting by Booking Cut-Off or RSVP Date. If either are unspecified, we should use event start date.
+	 * I couldn't figure out a way to do it with meta_query, so I hack the SQL directly.
+	 * 
+	 * This query:
+	 * SELECT SQL_CALC_FOUND_ROWS  wp_4e7h9e_posts.* FROM wp_4e7h9e_posts
+	 * 		INNER JOIN wp_4e7h9e_postmeta ON ( wp_4e7h9e_posts.ID = wp_4e7h9e_postmeta.post_id )
+	 * 			INNER JOIN wp_4e7h9e_postmeta AS mt1 ON ( wp_4e7h9e_posts.ID = mt1.post_id )
+	 * 		WHERE 1=1  
+	 * 			AND ( wp_4e7h9e_postmeta.meta_key = '_event_ec_rsvp_date' AND 
+	 * 			( ( mt1.meta_key = '_event_end' AND CAST(mt1.meta_value AS DATETIME) >= '2024-04-10 05:54:12' ) )
+	 * 			) 
+	 * 			AND ((wp_4e7h9e_posts.post_type = 'event' 
+	 * 			AND (wp_4e7h9e_posts.post_status = 'publish' 
+	 * 			OR wp_4e7h9e_posts.post_status = 'future' 
+	 * 			OR wp_4e7h9e_posts.post_status = 'draft'
+	 * 			OR wp_4e7h9e_posts.post_status = 'pending' 
+	 * 			OR wp_4e7h9e_posts.post_status = 'private')))
+	 * 			GROUP BY wp_4e7h9e_posts.ID
+	 * 			ORDER BY wp_4e7h9e_postmeta.meta_value ASC
+	 * LIMIT 0, 20
+	 * 
+	 * Becomes this:
+	 * SELECT SQL_CALC_FOUND_ROWS  wp_4e7h9e_posts.* FROM wp_4e7h9e_posts 
+	 * 		INNER JOIN 
+	 * 			(SELECT * FROM wp_4e7h9e_postmeta WHERE (meta_key='_event_ec_rsvp_date' OR meta_key='_event_start_local') GROUP BY post_id ORDER BY meta_value ASC) meta on wp_4e7h9e_posts.ID = meta.post_id
+	 *		WHERE  wp_4e7h9e_posts.post_type = 'event' 
+	 *		AND (wp_4e7h9e_posts.post_status = 'publish'
+	 * 		OR wp_4e7h9e_posts.post_status = 'future'
+	 * 		OR wp_4e7h9e_posts.post_status = 'draft' 
+	 * 		OR wp_4e7h9e_posts.post_status = 'pending' 
+	 *		OR wp_4e7h9e_posts.post_status = 'private')		 
+	 *	LIMIT 0, 20
+	 */
+	public static function posts_clauses($clauses) {
+		global $wpdb;
+		//echo print_r($clauses)."\n\n";
+		$where = $clauses["where"];
+
+		$hack = EM_Event_Post::should_hack_query($where);
+		if (!empty($hack)) {
+			$order = 'ASC';
+			if (str_contains($clauses['orderby'], 'DESC')) {
+				$order = 'DESC';
+			}
+
+			$where = preg_replace('/.*\(\(/sm', '', $where);
+			$where = preg_replace('/\)\)\)/sm', ')', $where);
+			$clauses['where'] = $where;
+			$clauses['join'] = 'INNER JOIN (SELECT * FROM '.$wpdb->postmeta." WHERE (meta_key='_event_rsvp_date' OR meta_key='_event_start_local') GROUP BY post_id ORDER BY meta_value ".$order.') meta on '.$wpdb->posts.'.ID = meta.post_id';
+			$clauses['groupby'] = '';
+			$clauses['orderby'] = '';
+		}
+		return $clauses;
+	}
+
+	public static function should_hack_query($where) {
+		if (preg_match('/meta_key\s*=\s*\'(_event_rsvp_date|_event_ec_rsvp_date)\'/sm', $where, $matches)) {
+		   return $matches[1];
+		}
+		return "";
 	}
 	
 	public static function publish_future_post($post_id){
@@ -318,7 +393,13 @@ class EM_Event_Post {
 		  	if( is_admin() ){
 		  		//admin areas don't need special ordering, so make it simple
 		  		if( !empty($_REQUEST['orderby']) && $_REQUEST['orderby'] != 'date-time' ){
-		  			$wp_query->query_vars['orderby'] = $_REQUEST['orderby'];
+					if ($_REQUEST['orderby'] == 'booking-cutoff') {
+						$wp_query->query_vars['orderby'] = 'meta_value';
+						$wp_query->query_vars['meta_key'] = '_event_rsvp_date';
+					}  elseif ($_REQUEST['orderby'] == 'rsvp-date') {
+						$wp_query->query_vars['orderby'] = 'meta_value';
+						$wp_query->query_vars['meta_key'] = '_event_ec_rsvp_date';
+					}
 		  		}else{
 				  	$wp_query->query_vars['orderby'] = 'meta_value';
 				  	$wp_query->query_vars['meta_key'] = '_event_start_local';
