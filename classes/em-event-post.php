@@ -100,7 +100,7 @@ class EM_Event_Post {
 			$where = preg_replace('/.*\(\(/sm', '', $where);
 			$where = preg_replace('/\)\)\)/sm', ')', $where);
 			$clauses['where'] = $where;
-			$clauses['join'] = 'INNER JOIN (SELECT * FROM '.$wpdb->postmeta." WHERE (meta_key='_event_rsvp_date' OR meta_key='_event_start_local') GROUP BY post_id ORDER BY meta_value ".$order.') meta on '.$wpdb->posts.'.ID = meta.post_id';
+			$clauses['join'] = 'INNER JOIN (SELECT * FROM '.$wpdb->postmeta." WHERE (meta_key='".$hack."' OR meta_key='_event_start_local') GROUP BY post_id ORDER BY meta_value ".$order.') meta on '.$wpdb->posts.'.ID = meta.post_id';
 			$clauses['groupby'] = '';
 			$clauses['orderby'] = '';
 		}
