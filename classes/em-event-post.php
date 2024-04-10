@@ -43,7 +43,7 @@ class EM_Event_Post {
 	}
 
 	public static function posts_request($request) {
-		$hack = EM_Event_Post::should_hack_query($where);
+		$hack = EM_Event_Post::should_hack_query($request);
 		if (!empty($hack)) {
 			$request = preg_replace("/1=1/m", "", $request);
 		}
