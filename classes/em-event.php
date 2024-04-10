@@ -1910,7 +1910,7 @@ class EM_Event extends EM_Object{
 						//is this a specops troop?
 						$show_condition = $this->ggg_is_specops();
 					}elseif ($condition == 'ggg_is_not_specops'){
-						//is this a specops troop?
+						//is this not a specops troop?
 						$show_condition = !$this->ggg_is_specops();
 					}elseif ($condition == 'no_image'){
 						//does this event have an image?
