@@ -45,7 +45,7 @@ class EM_Event_Post {
 	public static function posts_request($request) {
 		$hack = EM_Event_Post::should_hack_query($request);
 		if (!empty($hack)) {
-			$request = preg_replace("/1=1/m", "", $request);
+			$request = preg_replace("/1=1\s*AND/m", "", $request);
 		}
 		//echo $request;
 		return $request;
@@ -97,12 +97,12 @@ class EM_Event_Post {
 				$order = 'DESC';
 			}
 
-			$where = preg_replace('/.*\(\(/sm', '', $where);
-			$where = preg_replace('/\)\)\)/sm', ')', $where);
+			$regex = '/(.*)(AND\s*\(\s*\S*\.meta_key\s*=\s*\'(_event_ec_rsvp_date|_event_rsvp_date)\'[\S\s]*AND)([\s\S]*post_type\s*=\s*\'event\'.*)/sm';
+			$where = preg_replace($regex, "$1 AND $4", $where);
 			$clauses['where'] = $where;
-			$clauses['join'] = 'INNER JOIN (SELECT * FROM '.$wpdb->postmeta." WHERE (meta_key='".$hack."' OR meta_key='_event_start_local') GROUP BY post_id ORDER BY meta_value ".$order.') meta on '.$wpdb->posts.'.ID = meta.post_id';
+			$clauses['join'] = 'INNER JOIN (SELECT * FROM '.$wpdb->postmeta." WHERE (meta_key='".$hack."' OR meta_key='_event_start_local') GROUP BY post_id) meta on ".$wpdb->posts.'.ID = meta.post_id';
+			$clauses['orderby'] = 'CAST(meta.meta_value AS DATETIME) '.$order;
 			$clauses['groupby'] = '';
-			$clauses['orderby'] = '';
 		}
 		return $clauses;
 	}

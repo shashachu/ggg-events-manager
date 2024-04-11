@@ -5,7 +5,7 @@ Tags: bookings, calendar, tickets, events, buddypress, event management, google 
 Text Domain: events-manager
 Requires at least: 3.5
 Tested up to: 4.9.6
-Stable tag: 5.9.59
+Stable tag: 5.9.591
 
 Fully featured event registration management including recurring events, locations management, calendar, Google map integration, booking management
 
@@ -110,10 +110,13 @@ See our [FAQ](http://wp-events-plugin.com/documentation/faq/) page, which is upd
 6. Manage attendees with various booking reports
 
 == Changelog ==
+= 5.9.591 =
+* Fixed sorting by Booking Cut-off and RSVP Date when posts are filtered by author, status etc.
+
 = 5.9.59 =
 * Fixed bugs with sorting of Booking Cut-Off and RSVP Date
 * Updated conditionals:
-  * `{ggg_has_signups}` should be replaced with `{ggg_has_any_signups}
+  * `{ggg_has_signups}` should be replaced with `{ggg_has_any_signups}`
   * `{ggg_has_approved_signups}`
   * `{ggg_has_pending_signups}`
   * `{ggg_is_not_specops}`
