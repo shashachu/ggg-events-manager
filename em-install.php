@@ -425,7 +425,7 @@ function em_create_costumes_table() {
 	}
 }
 
-	function em_add_options() {
+function em_add_options() {
 	global $wp_locale, $wpdb;
 	$decimal_point = !empty($wp_locale->number_format['decimal_point']) ? $wp_locale->number_format['decimal_point']:'.';
 	$thousands_sep = !empty($wp_locale->number_format['thousands_sep']) ? $wp_locale->number_format['thousands_sep']:',';

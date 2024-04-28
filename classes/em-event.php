@@ -2444,9 +2444,9 @@ class EM_Event extends EM_Object{
 					break;
 				// GGG
 				case "#_RSVPDATE":
-						$replace_format = em_get_date_format();
-						$replace = $this->ec_rsvp()->format($replace_format);
-						break;
+					$replace_format = em_get_date_format();
+					$replace = $this->ec_rsvp()->format($replace_format);
+					break;
 				default:
 					$replace = $full_result;
 					break;
