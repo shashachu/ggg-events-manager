@@ -1,4 +1,5 @@
 <?php
+/* GGG Modification: Input to show RSVP/Decline date */
 global $EM_Event, $post;
 $required = apply_filters('em_required_html','<i>*</i>');
 ?>

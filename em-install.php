@@ -244,8 +244,8 @@ function em_create_locations_table() {
 		location_postcode VARCHAR( 10 ) NULL DEFAULT NULL,
 		location_region VARCHAR( 200 ) NULL DEFAULT NULL,
 		location_country CHAR( 2 ) NULL DEFAULT NULL,
-		location_latitude FLOAT( 10, 6 ) NULL DEFAULT NULL,
-		location_longitude FLOAT( 10, 6 ) NULL DEFAULT NULL,
+		location_latitude DECIMAL( 9, 6 ) NULL DEFAULT NULL,
+		location_longitude DECIMAL( 9, 6 ) NULL DEFAULT NULL,
 		post_content longtext NULL DEFAULT NULL,
 		location_status int(1) NULL DEFAULT NULL,
 		location_private bool NOT NULL DEFAULT 0,
@@ -361,13 +361,13 @@ function em_create_tickets_bookings_table() {
 	if( em_check_utf8mb4_tables() ) maybe_convert_table_to_utf8mb4( $table_name );
 }
 
-// Create the default costume lists table() {
+// GGG Create the default costume lists table() {
 function em_create_costumes_table() {
 	global  $wpdb, $user_level;
 	$table_name = $wpdb->prefix.'em_costumes';
 
 	// Creating the events table
-	$sql = "CREATE TABLE {$table_name} (
+	$sql = "CREATE TABLE IF NOT EXISTS {$table_name} (
 			costume_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			costume_name TINYTEXT NOT NULL,
 			PRIMARY KEY  (costume_id)
@@ -378,8 +378,16 @@ function em_create_costumes_table() {
 	em_sort_out_table_nu_keys($table_name, array('costume_id'));
 	if( em_check_utf8mb4_tables() ) maybe_convert_table_to_utf8mb4( $table_name );
 
+	$sql = 'SELECT * FROM '.$table_name.' LIMIT 5';
+	$existing_costumes = $wpdb->get_results($sql, ARRAY_A);
+
+	// Don't delete the costumes already in the table
+	if (count($existing_costumes) > 0) {
+		return;
+	}
+
+	// Otherwise, populate with a default set
 	$costumes = array(
-		"TK: Stormtrooper",
 		"AR: ARC Trooper",
 		"BH - Bounty Hunter",
 		"CB: Kaskyyyk Trooper",
@@ -389,23 +397,34 @@ function em_create_costumes_table() {
 		"CX: Special Ops Clone Troopers",
 		"DS: Dark Side Adept",
 		"DZ: Denizen",
+		"DZ: Jawa",
+		"DZ: Gamorrean Guard",
+		"DZ: Narkina 5 Inmate",
 		"GM: Galactic Marine",
 		"IC: Imperial Crew",
+		"IC: Death Star Scientist",
 		"ID: Imperial Officer",
 		"IG: Imperial Gunner",
 		"IN: Imperial Navy",
 		"IS: AT-ST Driver",
+		"MW: Death Watch",
+		"MW: Bo-Katan",
 		"RC: Republic Commando",
 		"SL: Sith",
 		"ST: Shoretrooper",
 		"TA: AT-AT Driver",
+		"TA: Tank Driver",
 		"TB: Scout Trooper",
 		"TC: Clone Trooper",
 		"TD: Sandtrooper",
 		"TI: TIE Pilot",
+		"TI: TIE Reserve",
+		"TK: Stormtrooper",
 		"TR: Royal Guard",
 		"TS: Snowtrooper",
-		"TX: Special Operations");
+		"TX: Special Operations",
+		"ZZZ: Other (please indicate in comments)"
+	);
 	$costumes = array_map(function ($c) use ($wpdb) {
 		return $wpdb->prepare("('%s')", $c);
 	}, $costumes);
@@ -1151,6 +1170,7 @@ function em_upgrade_current_installation(){
 		$EM_Admin_Notice = new EM_Admin_Notice(array( 'name' => 'gdpr_update', 'who' => 'admin', 'where' => 'all', 'message' => "<p>$message</p><p>$message2</p>" ));
 		EM_Admin_Notices::add($EM_Admin_Notice, is_multisite());
 	}
+	// GGG
 	if( get_option('dbem_version') != '' && get_option('dbem_version') < 5.951 ){
 		em_create_costumes_table();
 	}

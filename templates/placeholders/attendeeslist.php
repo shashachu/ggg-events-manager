@@ -1,5 +1,6 @@
 <?php
 /* @var $EM_Event EM_Event */
+/* GGG Modifications: Separating by ticket type */
 $people = array();
 $EM_Bookings = $EM_Event->get_bookings();
 if( count($EM_Bookings->bookings) > 0 ){

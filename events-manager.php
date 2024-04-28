@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: GGG Events Manager
-Version: 5.9.591
+Version: 5.9.610
 Plugin URI: https://github.com/shashachu/ggg-events-manager/
 Description: Customized version of the Events Manager plugin by Marcus Sykes, tailored towards trooping signups for the Golden Gate Garrison.
 Author: Marcus Sykes, Sha Sha Chu
@@ -10,7 +10,7 @@ Text Domain: ggg-events-manager
 */
 
 /*
-Copyright (c) 2018, Marcus Sykes
+Copyright (c) 2019, Marcus Sykes
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 $myUpdateChecker->getVcsApi()->enableReleaseAssets();
 
 // Setting constants
-define('EM_VERSION', 5.9591); //self expanatory
+define('EM_VERSION', 5.9610); //self expanatory
 define('EM_PRO_MIN_VERSION', 2.64); //self expanatory
 define('EM_PRO_MIN_VERSION_CRITICAL', 2.377); //self expanatory
 define('EM_DIR', dirname( __FILE__ )); //an absolute path to this directory
@@ -180,6 +180,7 @@ if( EM_MS_GLOBAL ){
 	define('EM_RECURRENCE_TABLE',$prefix.'dbem_recurrence'); //TABLE NAME
 	define('EM_LOCATIONS_TABLE',$prefix.'em_locations'); //TABLE NAME
 	define('EM_BOOKINGS_TABLE',$prefix.'em_bookings'); //TABLE NAME
+	// GGG
 	define('EM_COSTUMES_TABLE',$prefix.'em_costumes'); //TABLE NAME
 
 //Backward compatability for old images stored in < EM 5
@@ -504,6 +505,8 @@ function em_init(){
 	}
 	//add custom functions.php file
 	locate_template('plugins/events-manager/functions.php', true);
+	//fire a loaded hook, most plugins should consider going through here to load anything EM related
+	do_action('events_manager_loaded');
 }
 add_filter('init','em_init',1);
 

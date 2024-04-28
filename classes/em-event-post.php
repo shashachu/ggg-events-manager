@@ -35,13 +35,15 @@ class EM_Event_Post {
 			add_filter('get_the_time',array('EM_Event_Post','the_time'),10,3);
 			add_filter('the_category',array('EM_Event_Post','the_category'),10,3);
 		} else {
+			// GGG
 			add_filter('posts_request', array('EM_Event_post', 'posts_request'));
 			add_filter('posts_clauses', array('EM_Event_post', 'posts_clauses'));
-		  }
+		}
 		add_action('parse_query', array('EM_Event_Post','parse_query'));
 		add_action('publish_future_post',array('EM_Event_Post','publish_future_post'),10,1);
 	}
 
+	// GGG
 	public static function posts_request($request) {
 		$hack = EM_Event_Post::should_hack_query($request);
 		if (!empty($hack)) {
@@ -393,6 +395,7 @@ class EM_Event_Post {
 		  	if( is_admin() ){
 		  		//admin areas don't need special ordering, so make it simple
 		  		if( !empty($_REQUEST['orderby']) && $_REQUEST['orderby'] != 'date-time' ){
+					// GGG
 					if ($_REQUEST['orderby'] == 'booking-cutoff') {
 						$wp_query->query_vars['orderby'] = 'meta_value';
 						$wp_query->query_vars['meta_key'] = '_event_rsvp_date';
@@ -400,12 +403,13 @@ class EM_Event_Post {
 						$wp_query->query_vars['orderby'] = 'meta_value';
 						$wp_query->query_vars['meta_key'] = '_event_ec_rsvp_date';
 					}
+					// END
 		  		}else{
 				  	$wp_query->query_vars['orderby'] = 'meta_value';
 				  	$wp_query->query_vars['meta_key'] = '_event_start_local';
 				  	$wp_query->query_vars['meta_type'] = 'DATETIME';
 		  		}
-				$wp_query->query_vars['order'] = (!empty($_REQUEST['order'])) ? $_REQUEST['order']:'ASC';
+				$wp_query->query_vars['order'] = (!empty($_REQUEST['order']) && preg_match('/^(ASC|DESC)$/i', $_REQUEST['order'])) ? $_REQUEST['order']:'ASC';
 		  	}else{
 			  	if( get_option('dbem_events_default_archive_orderby') == 'title'){
 			  		$wp_query->query_vars['orderby'] = 'title';
