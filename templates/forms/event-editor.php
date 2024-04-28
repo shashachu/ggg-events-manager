@@ -61,7 +61,7 @@ if( !empty($_REQUEST['success']) ){
 			}
 		?>
 		</div>
-
+		// GGG Modification: Adding RSVP/Decline date
 		<h3 class="event-form-when"><?php esc_html_e( 'RSVP Date', 'events-manager'); ?></h3>
 		<div class="inside event-form-when">
 		<?php 

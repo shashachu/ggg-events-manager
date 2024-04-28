@@ -1039,7 +1039,6 @@ class EM_Object {
 	 * @param integer $count The number of total items to paginate through
 	 * @param string $search_action The name of the action query var used to trigger a search - used in AJAX requests and normal searches
 	 * @param array $default_args The default arguments and values this object accepts, used to compare against $args to create a querystring
-	 * @param array $accepted_args Variables that can be passed on via a querystring and should be added to pagination links, objects should make use of this since the default may be EM_Object::get_default_search() due to late static binding issues
 	 * @return string
 	 * @uses em_paginate()
 	 */
@@ -1269,7 +1268,11 @@ class EM_Object {
 			$return = array();
 			foreach($this->fields as $fieldName => $fieldArray){
 				if($inverted_array){
-					$return[$fieldArray['name']] = $fieldName;
+					if( !empty($fieldArray['name']) ){
+						$return[$fieldArray['name']] = $fieldName;
+					}else{
+						$return[$fieldName] = $fieldName;
+					}
 				}else{
 					$return[$fieldName] = $fieldArray['name'];
 				}
