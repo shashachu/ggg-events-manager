@@ -592,7 +592,7 @@ class EM_Ticket extends EM_Object{
 		    }
 			ob_start();
 			?>
-			// GGG Modification
+			<!-- GGG Modification -->
 			<select name="em_tickets[<?php echo $this->ticket_id ?>][spaces]" class="em-ticket-select <?php if (EM_Ticket::is_costumed_ticket($this->ticket_name)) echo "ggg-costumed-ticket"; ?>" id="em-ticket-spaces-<?php echo $this->ticket_id ?>">
 				<?php 
 					$min = ($this->ticket_min > 0) ? $this->ticket_min:1;
