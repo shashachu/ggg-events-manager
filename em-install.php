@@ -378,6 +378,15 @@ function em_create_costumes_table() {
 	em_sort_out_table_nu_keys($table_name, array('costume_id'));
 	if( em_check_utf8mb4_tables() ) maybe_convert_table_to_utf8mb4( $table_name );
 
+	$sql = 'SELECT * FROM '.$table_name.' LIMIT 5';
+	$existing_costumes = $wpdb->get_results($sql, ARRAY_A);
+
+	// Don't delete the costumes already in the table
+	if (count($existing_costumes) > 0) {
+		return;
+	}
+
+	// Otherwise, populate with a default set
 	$costumes = array(
 		"AR: ARC Trooper",
 		"BH - Bounty Hunter",
