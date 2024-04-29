@@ -634,7 +634,7 @@ class EM_Object {
 	            	//non default taxonomy, so create new item for the taxonomies array
 	                $tax_name = str_replace('-','_',$tax_name);
 					$prefix = !array_key_exists($tax_name, $taxonomies_array) ? '':'post_';
-	                if( is_array($tax->object_type) ){
+	                if( is_array($tax->object_type) && !empty($tax->rewrite) ){
 	                    if( $event_tax || $loc_tax ){
 		                    $taxonomies_array[$prefix.$tax_name] = array('name'=>$tax_name, 'context'=>array(), 'slug'=> $tax->rewrite['slug'], 'query_var'=> $tax->query_var );
 	                    }
@@ -1028,6 +1028,7 @@ class EM_Object {
 		if( empty($request) ) $request = $_REQUEST;
 		if( !empty($request['em_search']) && empty($args['search']) ) $request['search'] = $request['em_search']; //em_search is included to circumvent wp search GET/POST clashes
 		$accepted_searches = !empty($accepted_searches) ? $accepted_searches : self::get_default_search();
+		$accepted_searches = array_diff($accepted_searches, array('format', 'format_header', 'format_footer'));
 		$accepted_searches = apply_filters('em_accepted_searches', $accepted_searches, $args);
 		//merge variables from the $request into $args
 		foreach($request as $post_key => $post_value){

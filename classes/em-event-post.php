@@ -405,7 +405,7 @@ class EM_Event_Post {
 					}
 					// END
 					else {
-						$wp_query->query_vars['orderby'] = sanitize_key($_REQUEST['orderby']);
+		  				$wp_query->query_vars['orderby'] = sanitize_key($_REQUEST['orderby']);
 					}
 		  		}else{
 				  	$wp_query->query_vars['orderby'] = 'meta_value';
