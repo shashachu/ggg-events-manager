@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin Name: GGG Events Manager
-Version: 5.9.610
+Plugin Name: Events Manager
+Version: 5.9.7.31
 Plugin URI: https://github.com/shashachu/ggg-events-manager/
 Description: Customized version of the Events Manager plugin by Marcus Sykes, tailored towards trooping signups for the Golden Gate Garrison.
 Author: Marcus Sykes, Sha Sha Chu
@@ -10,7 +10,7 @@ Text Domain: ggg-events-manager
 */
 
 /*
-Copyright (c) 2019, Marcus Sykes
+Copyright (c) 2020, Marcus Sykes
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -40,8 +40,8 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 $myUpdateChecker->getVcsApi()->enableReleaseAssets();
 
 // Setting constants
-define('EM_VERSION', 5.9610); //self expanatory
-define('EM_PRO_MIN_VERSION', 2.64); //self expanatory
+define('EM_VERSION', 5.9731); //self expanatory
+define('EM_PRO_MIN_VERSION', 2.6712); //self expanatory
 define('EM_PRO_MIN_VERSION_CRITICAL', 2.377); //self expanatory
 define('EM_DIR', dirname( __FILE__ )); //an absolute path to this directory
 define('EM_DIR_URI', trailingslashit(plugins_url('',__FILE__))); //an absolute path to this directory
@@ -68,7 +68,7 @@ if( !defined('WP_DEBUG') && get_option('dbem_wp_debug') ){
 function dbem_debug_mode(){
 	if( !empty($_REQUEST['dbem_debug_off']) ){
 		update_option('dbem_debug',0);
-		wp_redirect($_SERVER['HTTP_REFERER']);
+		wp_safe_redirect($_SERVER['HTTP_REFERER']);
 	}
 	if( current_user_can('activate_plugins') ){
 		include_once('em-debug.php');
@@ -459,8 +459,6 @@ function em_plugins_loaded(){
 		/* Upload Capabilities */
 		'upload_event_images' => __('You do not have permission to upload images','events-manager')
 	));
-	// LOCALIZATION
-	load_plugin_textdomain('events-manager', false, dirname( plugin_basename( __FILE__ ) ).'/includes/langs');
 	//WPFC Integration
 	if( defined('WPFC_VERSION') ){
 		function load_em_wpfc_plugin(){
@@ -521,7 +519,7 @@ function em_load_event(){
 	if( !defined('EM_LOADED') ){
 		$EM_Recurrences = array();
 		if( isset( $_REQUEST['event_id'] ) && is_numeric($_REQUEST['event_id']) && !is_object($EM_Event) ){
-			$EM_Event = new EM_Event($_REQUEST['event_id']);
+			$EM_Event = new EM_Event( absint($_REQUEST['event_id']) );
 		}elseif( isset($_REQUEST['post']) && (get_post_type($_REQUEST['post']) == 'event' || get_post_type($_REQUEST['post']) == 'event-recurring') ){
 			$EM_Event = em_get_event($_REQUEST['post'], 'post_id');
 		}elseif ( !empty($_REQUEST['event_slug']) && EM_MS_GLOBAL && is_main_site() && !get_site_option('dbem_ms_global_events_links')) {
@@ -536,7 +534,7 @@ function em_load_event(){
 			$EM_Event = em_get_event($event_id);
 		}
 		if( isset($_REQUEST['location_id']) && is_numeric($_REQUEST['location_id']) && !is_object($EM_Location) ){
-			$EM_Location = new EM_Location($_REQUEST['location_id']);
+			$EM_Location = new EM_Location( absint($_REQUEST['location_id']) );
 		}elseif( isset($_REQUEST['post']) && get_post_type($_REQUEST['post']) == 'location' ){
 			$EM_Location = em_get_location($_REQUEST['post'], 'post_id');
 		}elseif ( !empty($_REQUEST['location_slug']) && EM_MS_GLOBAL && is_main_site() && !get_site_option('dbem_ms_global_locations_links')) {
@@ -553,21 +551,21 @@ function em_load_event(){
 		if( is_user_logged_in() || (!empty($_REQUEST['person_id']) && is_numeric($_REQUEST['person_id'])) ){
 			//make the request id take priority, this shouldn't make it into unwanted objects if they use theobj::get_person().
 			if( !empty($_REQUEST['person_id']) ){
-				$EM_Person = new EM_Person( $_REQUEST['person_id'] );
+				$EM_Person = new EM_Person( absint($_REQUEST['person_id']) );
 			}else{
 				$EM_Person = new EM_Person( get_current_user_id() );
 			}
 		}
 		if( isset($_REQUEST['booking_id']) && is_numeric($_REQUEST['booking_id']) && !is_object($_REQUEST['booking_id']) ){
-			$EM_Booking = em_get_booking($_REQUEST['booking_id']);
+			$EM_Booking = em_get_booking( absint($_REQUEST['booking_id']) );
 		}
 		if( isset($_REQUEST['category_id']) && is_numeric($_REQUEST['category_id']) && !is_object($_REQUEST['category_id']) ){
-			$EM_Category = new EM_Category($_REQUEST['category_id']);
+			$EM_Category = new EM_Category( absint($_REQUEST['category_id']) );
 		}elseif( isset($_REQUEST['category_slug']) && !is_object($EM_Category) ){
 			$EM_Category = new EM_Category( $_REQUEST['category_slug'] );
 		}
 		if( isset($_REQUEST['ticket_id']) && is_numeric($_REQUEST['ticket_id']) && !is_object($_REQUEST['ticket_id']) ){
-			$EM_Ticket = new EM_Ticket($_REQUEST['ticket_id']);
+			$EM_Ticket = new EM_Ticket( absint($_REQUEST['ticket_id']) );
 		}
 		define('EM_LOADED',true);
 	}
