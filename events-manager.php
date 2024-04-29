@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: GGG Events Manager
-Version: 5.9.731
+Version: 5.9.810
 Plugin URI: https://github.com/shashachu/ggg-events-manager/
 Description: Customized version of the Events Manager plugin by Marcus Sykes, tailored towards trooping signups for the Golden Gate Garrison.
 Author: Marcus Sykes, Sha Sha Chu
@@ -40,7 +40,7 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 $myUpdateChecker->getVcsApi()->enableReleaseAssets();
 
 // Setting constants
-define('EM_VERSION', 5.9731); //self expanatory
+define('EM_VERSION', 5.9810); //self expanatory
 define('EM_PRO_MIN_VERSION', 2.6712); //self expanatory
 define('EM_PRO_MIN_VERSION_CRITICAL', 2.377); //self expanatory
 define('EM_DIR', dirname( __FILE__ )); //an absolute path to this directory
@@ -78,6 +78,7 @@ function dbem_debug_mode(){
 
 // INCLUDES
 //Base classes
+include('classes/em-exception.php');
 include('classes/em-options.php');
 include('classes/em-object.php');
 include('classes/em-datetime.php');
@@ -111,6 +112,7 @@ include('classes/em-category.php');
 include('classes/em-categories.php');
 include('classes/em-categories-frontend.php');
 include('classes/em-event.php');
+include('classes/event-locations/em-event-locations.php');
 include('classes/em-event-post.php');
 include('classes/em-events.php');
 include('classes/em-location.php');
@@ -130,7 +132,6 @@ include('classes/em-tickets-bookings.php');
 include('classes/em-tickets.php');
 //Admin Files
 if( is_admin() ){
-	include('classes/em-admin-notice.php');
 	include('classes/em-admin-notices.php');
 	include('admin/em-admin.php');
 	include('admin/em-bookings.php');
@@ -201,6 +202,22 @@ if( file_exists($upload_dir['basedir'].'/locations-pics' ) ){
 	define("EM_IMAGE_UPLOAD_DIR", $upload_dir['basedir']."/events-manager/");
 	define("EM_IMAGE_UPLOAD_URI", $upload_dir['baseurl']."/events-manager/");
 	define("EM_IMAGE_DS",'/');
+}
+
+/**
+ * Provides a way to proactively load groups of files, once, when needed.
+ * @since 5.9.7.4
+ */
+class EM_Loader {
+	public static $oauth = false;
+	
+	public static function oauth(){
+		require_once('classes/em-oauth/oauth-api.php');
+		add_action('em_enqueue_admin_styles', function(){
+			wp_enqueue_style('events-manager-oauth-admin', plugins_url('includes/css/events-manager-oauth-admin.css',__FILE__), array(), EM_VERSION);
+		});
+		self::$oauth = true;
+	}
 }
 
 /**
@@ -529,7 +546,8 @@ function em_load_event(){
 			if( preg_match('/\-([0-9]+)$/', $_REQUEST['event_slug'], $matches) ){
 				$event_id = $matches[1];
 			}else{
-				$event_id = $wpdb->get_var('SELECT event_id FROM '.EM_EVENTS_TABLE." WHERE event_slug='{$_REQUEST['event_slug']}' AND blog_id!=".get_current_blog_id());
+				$query = $wpdb->prepare('SELECT event_id FROM '.EM_EVENTS_TABLE.' WHERE event_slug = %s AND blog_id != %d', $_REQUEST['event_slug'], get_current_blog_id());
+				$event_id = $wpdb->get_var($query);
 			}
 			$EM_Event = em_get_event($event_id);
 		}
@@ -544,7 +562,8 @@ function em_load_event(){
 			if( preg_match('/\-([0-9]+)$/', $_REQUEST['location_slug'], $matches) ){
 				$location_id = $matches[1];
 			}else{
-				$location_id = $wpdb->get_var('SELECT location_id FROM '.EM_LOCATIONS_TABLE." WHERE location_slug='{$_REQUEST['location_slug']}' AND blog_id!=".get_current_blog_id());
+				$query = $wpdb->prepare('SELECT location_id FROM '.EM_LOCATIONS_TABLE." WHERE location_slug = %s AND blog_id != %d", $_REQUEST['location_slug'], get_current_blog_id());
+				$location_id = $wpdb->get_var($query);
 			}
 			$EM_Location = em_get_location($location_id);
 		}

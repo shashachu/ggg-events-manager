@@ -270,6 +270,7 @@ class EM_Event_Post_Admin{
 			add_meta_box('em-event-anonymous', __('Anonymous Submitter Info','events-manager'), array('EM_Event_Post_Admin','meta_box_anonymous'),EM_POST_TYPE_EVENT, 'side','high');
 		}
 		add_meta_box('em-event-when', __('When','events-manager'), array('EM_Event_Post_Admin','meta_box_date'),EM_POST_TYPE_EVENT, 'side','high');
+		// GGG
 		add_meta_box('em-event-when-ec-rsvp', __('RSVP Date','events-manager'), array('EM_Event_Post_Admin','meta_box_ec_rsvp_date'),EM_POST_TYPE_EVENT, 'side','high'); // GGG
 		if(get_option('dbem_locations_enabled', true)){
 			add_meta_box('em-event-where', __('Where','events-manager'), array('EM_Event_Post_Admin','meta_box_location'),EM_POST_TYPE_EVENT, 'normal','high');
