@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Events Manager
+Plugin Name: GGG Events Manager
 Version: 5.9.7.31
 Plugin URI: https://github.com/shashachu/ggg-events-manager/
 Description: Customized version of the Events Manager plugin by Marcus Sykes, tailored towards trooping signups for the Golden Gate Garrison.
