@@ -42,7 +42,7 @@ class EM_Event_Post {
 		add_action('parse_query', array('EM_Event_Post','parse_query'));
 		add_action('publish_future_post',array('EM_Event_Post','publish_future_post'),10,1);
 	}
-
+	
 	// GGG
 	public static function posts_request($request) {
 		$hack = EM_Event_Post::should_hack_query($request);
@@ -395,7 +395,7 @@ class EM_Event_Post {
 		  	if( is_admin() ){
 		  		//admin areas don't need special ordering, so make it simple
 		  		if( !empty($_REQUEST['orderby']) && $_REQUEST['orderby'] != 'date-time' ){
-					// GGG
+		  			// GGG
 					if ($_REQUEST['orderby'] == 'booking-cutoff') {
 						$wp_query->query_vars['orderby'] = 'meta_value';
 						$wp_query->query_vars['meta_key'] = '_event_rsvp_date';
@@ -404,6 +404,9 @@ class EM_Event_Post {
 						$wp_query->query_vars['meta_key'] = '_event_ec_rsvp_date';
 					}
 					// END
+					else {
+						$wp_query->query_vars['orderby'] = sanitize_key($_REQUEST['orderby']);
+					}
 		  		}else{
 				  	$wp_query->query_vars['orderby'] = 'meta_value';
 				  	$wp_query->query_vars['meta_key'] = '_event_start_local';

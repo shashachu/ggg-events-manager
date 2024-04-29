@@ -2,13 +2,13 @@
 /**
  * Deals with the booking info for an event
  * @author marcus
- *
+ * @property EM_Booking[] $bookings
  */
 class EM_Bookings extends EM_Object implements Iterator{
 	
 	/**
 	 * Array of EM_Booking objects for a specific event
-	 * @var array
+	 * @var EM_Booking[]
 	 */
 	protected $bookings;
 	/**
@@ -64,6 +64,7 @@ class EM_Bookings extends EM_Object implements Iterator{
 		if( $var == 'bookings' ){
 			return $this->load();
 		}
+		return parent::__get( $var );
 	}
 	
 	public function __set( $var, $val ){
@@ -74,6 +75,7 @@ class EM_Bookings extends EM_Object implements Iterator{
 				$this->bookings = null;
 			}
 		}
+		parent::__set( $var, $val );
 	}
 	
 	/**
@@ -84,13 +86,12 @@ class EM_Bookings extends EM_Object implements Iterator{
 	 * @param string $var
 	 * @return boolean
 	 */
-	public function __isset( $var ){
+	public function __isset( $prop ){
 		//if isset is invoked on $EM_Bookings->bookings then we'll assume it's only set if the bookings property is empty, not if null.
-		$result = false;
-		if( $var == 'bookings' ){
-			$result = $this->bookings !== null;
+		if( $prop == 'bookings' ){
+			return $this->bookings !== null;
 		}
-		return $result;
+		return parent::__isset( $prop );
 	}
 	
 	public function load( $refresh = false ){
@@ -598,7 +599,7 @@ class EM_Bookings extends EM_Object implements Iterator{
 		$where = ( count($conditions) > 0 ) ? " WHERE " . implode ( " AND ", $conditions ):'';
 		
 		//Get ordering instructions
-		$EM_Booking = em_get_booking();
+		$EM_Booking = new EM_Booking();
 		$accepted_fields = $EM_Booking->get_fields(true);
 		$accepted_fields['date'] = 'booking_date';
 		$orderby = self::build_sql_orderby($args, $accepted_fields);

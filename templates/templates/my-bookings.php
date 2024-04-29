@@ -32,6 +32,7 @@
 				<?php endif; ?>
 				<div class="clear"></div>
 				<?php if( $bookings_count > 0 ): ?>
+				<!-- GGG -->
 				<div class='table-wrap' style="overflow-x:auto;">
 				<table id='dbem-bookings-table' class='widefat post fixed'>
 					<thead>

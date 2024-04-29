@@ -825,7 +825,7 @@ function em_ascii_encode($e){
 }
 
 /**
- * Return list of available costumes for Costumed Ticket signups
+ * GGG: Return list of available costumes for Costumed Ticket signups
  */
 function ggg_get_costume_list() {
 	global $wpdb;
