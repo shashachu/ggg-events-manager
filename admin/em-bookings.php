@@ -186,6 +186,7 @@ function em_bookings_single(){
 		<?php
 		return false;
 	}
+	do_action('em_booking_admin', $EM_Booking);
 	?>
 	<div class='wrap' id="em-bookings-admin-booking">
 		<?php if( is_admin() ): ?><h1><?php else: ?><h2><?php endif; ?>		
@@ -239,11 +240,11 @@ function em_bookings_single(){
 						</form>
 						<script type="text/javascript">
 							jQuery(document).ready( function($){
-								$('#em-booking-person-modify').click(function(){
+								$('#em-booking-person-modify').on('click', function(){
 									$('.em-booking-person-details').hide();
 									$('.em-booking-person-editor').show();
 								});
-								$('#em-booking-person-modify-cancel').click(function(){
+								$('#em-booking-person-modify-cancel').on('click', function(){
 									$('.em-booking-person-details').show();
 									$('.em-booking-person-editor').hide();
 								});
@@ -424,22 +425,22 @@ function em_bookings_single(){
 						</form>
 						<script type="text/javascript">
 							jQuery(document).ready( function($){
-								$('#em-booking-submit-modify').click(function(){
+								$('#em-booking-submit-modify').on('click', function(){
 									$('.em-booking-single-info').hide();
 									$('.em-booking-single-edit').show();
 								});
-								$('#em-booking-submit-cancel').click(function(){
+								$('#em-booking-submit-cancel').on('click', function(){
 									$('.em-booking-single-info').show();
 									$('.em-booking-single-edit').hide();
 								});
 								$('.em-booking-single-info').show();
 								$('.em-booking-single-edit').hide();
 
-								$('#em-booking-submit-status-modify').click(function(){
+								$('#em-booking-submit-status-modify').on('click', function(){
 									$('.em-booking-single-status-info').hide();
 									$('.em-booking-single-status-edit').show();
 								});
-								$('#em-booking-submit-status-cancel').click(function(){
+								$('#em-booking-submit-status-cancel').on('click', function(){
 									$('.em-booking-single-status-info').show();
 									$('.em-booking-single-status-edit').hide();
 								});
@@ -447,6 +448,7 @@ function em_bookings_single(){
 								$('.em-booking-single-status-edit').hide();
 							});
 						</script>
+						<?php do_action('em_bookings_single_details_footer', $EM_Booking); ?>
 					</div>
 				</div>
 				<div id="em-booking-notes" class="postbox">

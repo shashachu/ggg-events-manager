@@ -205,7 +205,7 @@ class EM_Event_Post {
 	
 	public static function the_content( $content ){
 		global $post, $EM_Event;
-		if( $post->post_type == EM_POST_TYPE_EVENT ){
+		if( !empty($post) && $post->post_type == EM_POST_TYPE_EVENT ){
 			if( is_archive() || is_search() ){
 				if(get_option('dbem_cp_events_archive_formats')){
 					$EM_Event = em_get_event($post);
@@ -219,6 +219,8 @@ class EM_Event_Post {
 						//we don't do extra checks here because WP will have already done the work for us here...
 						$EM_Event->post_content = $post->post_content;
 						$EM_Event->post_content_filtered = $post->post_content_filtered;
+					}else{
+						$EM_Event->post_content = $content;
 					}
 					ob_start();
 					em_locate_template('templates/event-single.php',true);

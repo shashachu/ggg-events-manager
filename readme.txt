@@ -4,8 +4,8 @@ Donate link: http://wp-events-plugin.com
 Tags: bookings, calendar, tickets, events, buddypress, event management, google maps, maps, locations, registration, zoom
 Text Domain: events-manager
 Requires at least: 5.2
-Tested up to: 5.6
-Stable tag: 5.9.910
+Tested up to: 5.8
+Stable tag: 5.10.1
 Requires PHP: 5.3
 
 Fully featured event registration management including recurring events, locations management, calendar, Google map integration, booking management
@@ -63,9 +63,13 @@ We provide the tools to [help you be GDPR compliant](http://wp-events-plugin.com
 * settings to control what can be exported/erased as well as where/when to place consent requests
 * sample text for your site privacy policy describing what Events Manager does with personal data
 
-= Go Pro =
-We have a premium "Pro" add-on for Events Manager which not only demonstrates the flexibility of Events Manager, but also adds some important features including but not limited to:
+= Premium Features =
 
+*NEW* Check out our [WooCommerce add-on](https://wp-events-plugin.com/woocommerce/)! Sell bookings directly with WooCommerce.
+
+We have a premium [Pro add-on for Events Manager](http://eventsmanagerpro.com/gopro/) which not only demonstrates the flexibility of Events Manager, but also adds some important features including but not limited to:
+
+* WooCommerce integration included FREE (limited-time offer)
 * PayPal, Stripe, Authorize.net and Offline Payments
 * Custom booking forms
 * Individual Attendee custom forms
@@ -115,6 +119,61 @@ See our [FAQ](http://wp-events-plugin.com/documentation/faq/) page, which is upd
 6. Manage attendees with various booking reports
 
 == Changelog ==
+= 5.10.1 = 
+* 5.10 with GGG mods
+
+= 5.10 =
+* fixed a minor PHPMailer PHP warning tiggered when mailing errors occur
+* fixed date validation errors restting available from/until times to 12AM for tickets
+* fixed WP Fullcalendar style tweak for tip image
+* removed loading of EM_Person upon construct of EM_Booking to prevent unecessary pre-loading
+* fixed bookings closed text not being translatable by ML plugins
+* fixed multilingual translation failures when triggering actions like ML booking emails as an admin
+* added em_ml_swiitch_locale and em_ml_restore_locale actions for ML plugins that don't hook into WP's switch_locale
+* fixed potential ML translation issues when switching translated event objects in a booking
+* optimized translated event switching in booking objects
+* added em_pre_taxonomy_template, em_pre_{taxonomy_name}_taxonomy_template and em_taxonomy_template
+* added temporary fix for compatibility issue with/caused by BuddyBoss
+* fixed PHP warnings caused by dev version update checks, also removed em_org_dev_version_slugs filter in place of em_org_dev_versions
+* added em_bookings_single_details_footer filter
+* added extra email trimming to prevent mail errors due to errant whitespaces
+* added em_ticket_get_price_without_tax filter
+* fixed #@_{...} placeholders still showing if end date is the same
+* fixed email fatal errors when password reset is disabled by other plugins or custom code
+* fixed caching issues with custom code hooking into em_event by firing the action before caching occurs
+* fixed reported issues with Elementor by writing $content into event and location object post_content properties (kudos to @martinneumannat)
+* fixed CZY currency symbols not being included
+* fixed dbem_maps_text_format and potentially other formats retrieved via AJAX not being overridable using our em_formats_filter filter
+* fixed bookings="0" not returning non-bookable events in shortcodes
+* fixed google ical link using http://
+* fixed EM_Person::get_summary() returning mixed up array key/values (props @duisterdenhaag)
+* removed outline style rules from CSS to help with WCAG compliance
+
+= 5.9.11.3 =
+* fixed issues with WooCommerce add-on circumventing currency formatting
+* changed various AJAX/Admin actions to fire on wp_loaded rather than init action to allow better plugin compatibility
+* added $where param to EM_Admin_Notice constructor
+* added __sleep and __wakeup functions to EM_Booking and EM_Ticket_Booking for more optimal serialization
+* fixed timepicker conflict issues with other plugins due to shared common function names
+
+= 5.9.11  =
+* updated JS to remove any deprecated functionality in jQuery v3.5,
+* changed timepicker library to (timepicker)[https://github.com/jonthornton/jquery-timepicker/]
+* added $target to Event_Location->output() function parameters
+* fixed EM_Event->output() errors causing booking emails to fail if containing #_EVENTLOCATION placeholders for non-virtual events
+* added $send_email and $ignore_spaces params to EM_Bookings::set_status()
+* added em_booking_admin action to top of single booking admin area
+* added update_meta() function to EM_Booking,
+* fixed some minor PHP warnings,
+* added ticket availability re-check during EM_Booking::validate() for bookings stored in session before saving
+
+= 5.9.10 =
+* fixed event locations not getting synced with translations (WPML) and requires re-saving events to take effect
+* fixed incorrect dates in calendars for some specific server setups - props to @davidkryzaniak
+* fixed multilingual event duplication issues
+* tweaked dev updates checker to allow other .org plugins to be checked if added to array passed by em_org_dev_version_slugs filter
+* fixed a PHP 8.0 deprecated line of code
+
 = 5.9.910 =
 * 5.9.9 with GGG mods
 

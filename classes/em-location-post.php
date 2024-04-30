@@ -93,7 +93,7 @@ class EM_Location_Post {
 	
 	public static function the_content( $content ){
 		global $post, $EM_Location;
-		if( $post->post_type == EM_POST_TYPE_LOCATION ){
+		if( !empty($post) && $post->post_type == EM_POST_TYPE_LOCATION ){
 			if( is_archive() || is_search() ){
 				if( get_option('dbem_cp_locations_archive_formats') ){
 					$EM_Location = em_get_location($post);
@@ -102,6 +102,13 @@ class EM_Location_Post {
 			}else{
 				if( get_option('dbem_cp_locations_formats') && !post_password_required() ){
 					$EM_Location = em_get_location($post);
+					if( !empty($_REQUEST['preview']) ){
+						//we don't do extra checks here because WP will have already done the work for us here...
+						$EM_Location->post_content = $post->post_content;
+						$EM_Location->post_content_filtered = $post->post_content_filtered;
+					}else{
+						$EM_Location->post_content = $content;
+					}
 					ob_start();
 					em_locate_template('templates/location-single.php',true);
 					$content = ob_get_clean();

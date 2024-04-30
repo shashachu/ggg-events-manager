@@ -143,7 +143,6 @@ class EM_Booking extends EM_Object{
 			//Save into the object
 			$this->to_object($booking);
 			$this->previous_status = $this->booking_status;
-			$this->get_person();
 			$this->booking_date = !empty($booking['booking_date']) ? $booking['booking_date']:false;
 		}
 		//Do it here so things appear in the po file.
@@ -195,6 +194,25 @@ class EM_Booking extends EM_Object{
 		if( $prop == 'timestamp' ) return $this->date()->getTimestamp() > 0;
 		if( $prop == 'language' ) return !empty($this->booking_meta['lang']);
 		return  parent::__isset( $prop );
+	}
+	
+	/**
+	 * Return relevant fields that will be used for storage, excluding things such as event and ticket objects that should get reloaded
+	 * @return string[]
+	 */
+	public function __sleep(){
+		$array = array('booking_id','event_id','person_id','booking_price','booking_spaces','booking_comment','booking_status','booking_tax_rate','booking_taxes','booking_meta','notes','booking_date','person','feedback_message','errors','mails_sent','custom','previous_status','status_array','manage_override','tickets_bookings');
+		if( !empty($this->bookings) ) $array[] = 'bookings'; // EM Pro backwards compatibility
+		return apply_filters('em_booking_sleep', $array, $this);
+	}
+	
+	/**
+	 * Repopulate the ticket bookings with this object and its event reference.
+	 */
+	public function __wakeup(){
+		foreach($this->get_tickets_bookings()->tickets_bookings as $EM_Ticket_Booking){
+			$EM_Ticket_Booking->booking = $this;
+		}
 	}
 	
 	function get_notes(){
@@ -274,6 +292,22 @@ class EM_Booking extends EM_Object{
 			}
 		}
 		return apply_filters('em_booking_save', false, $this, false);
+	}
+	
+	/**
+	 * Update a specific key value in the booking meta data, or create one if it doesn't exist.
+	 * @param $meta_key
+	 * @param $meta_value
+	 * @return bool
+	 * @since 5.9.11
+	 */
+	public function update_meta( $meta_key, $meta_value ){
+		global $wpdb;
+		if( !$this->booking_id ) return false;
+		$this->booking_meta[$meta_key] = $meta_value;
+		$booking_meta = serialize($this->booking_meta);
+		$result = $wpdb->update( EM_BOOKINGS_TABLE, array('booking_meta' => $booking_meta), array('booking_id' => $this->booking_id) );
+		return apply_filters('em_booking_update_meta', $result !== false, $meta_key, $meta_value, $this);
 	}
 	
 	/**
@@ -361,8 +395,8 @@ class EM_Booking extends EM_Object{
 			foreach($this->get_tickets_bookings()->tickets_bookings as $EM_Ticket_Booking){ /* @var $EM_Ticket_Booking EM_Ticket_Booking */
 				if ( !$EM_Ticket_Booking->validate() ){
 					$ticket_validation[] = false;
-					$result = $basic && !in_array(false,$ticket_validation);
-				} else {
+					$this->errors = array_merge($this->errors, $EM_Ticket_Booking->get_errors());
+				}  else {
 					// GGG
 					$ticket_id = $EM_Ticket_Booking->ticket_id;
 					$ticket_name = EM_Ticket::get_ticket_name($ticket_id);
@@ -373,16 +407,30 @@ class EM_Booking extends EM_Object{
 					}
 					// END
 				}
-				$this->errors = array_merge($this->errors, $EM_Ticket_Booking->get_errors());
 			}
 			$result = $basic && !in_array(false,$ticket_validation);
 		}else{
 			$result = false;
 		}
-		//is there enough space overall?
-		if( !$override_availability && $this->get_event()->get_bookings()->get_available_spaces() < $this->get_spaces() ){
-		    $result = false;
-		    $this->add_error(get_option('dbem_booking_feedback_full'));
+		if( !$override_availability ){
+			// are bookings even available due to event and ticket cut-offs/restrictions? This is checked earlier in booking processes, but is relevant in checkout/cart situations where a previously-made booking is validated just before checkout
+			if( $this->get_event()->rsvp_end()->getTimestamp() < time() ){
+				$result = false;
+				$this->add_error(get_option('dbem_bookings_form_msg_closed'));
+			}else{
+				foreach( $this->get_tickets_bookings() as $EM_Ticket_Booking ){
+					if( !$EM_Ticket_Booking->get_ticket()->is_available() ){
+						$result = false;
+						$message = __('The ticket %s is no longer available.', 'events-manager');
+						$this->add_error(get_option('dbem_booking_feedback_ticket_unavailable', sprintf($message, "'".$EM_Ticket_Booking->get_ticket()->name."'")));
+					}
+				}
+			}
+			//is there enough space overall?
+			if( $this->get_event()->get_bookings()->get_available_spaces() < $this->get_spaces() ){
+				$result = false;
+				$this->add_error(get_option('dbem_booking_feedback_full'));
+			}
 		}
 		//can we book this amount of spaces at once?
 		if( $this->get_event()->event_rsvp_spaces > 0 && $this->get_spaces() > $this->get_event()->event_rsvp_spaces ){
@@ -634,7 +682,8 @@ class EM_Booking extends EM_Object{
 			if( !empty($adjustment['amount']) ){
 				if( !empty($adjustment['tax']) && $adjustment['tax'] == $pre_or_post ){
 					if( !empty($adjustment['type']) ){
-						$adjustment_summary_item = array('name' => $adjustment['name'], 'desc' => $adjustment['desc'], 'adjustment'=>'0', 'amount_adjusted'=>0, 'tax'=>$pre_or_post);
+						$desc = !empty($adjustment['desc']) ? $adjustment['desc'] : '';
+						$adjustment_summary_item = array('name' => $adjustment['name'], 'desc' => $desc, 'adjustment'=>'0', 'amount_adjusted'=>0, 'tax'=>$pre_or_post);
 						if( $adjustment['type'] == '%' ){ //adjustment by percentage
 							$adjustment_summary_item['amount_adjusted'] = round($price * ($adjustment['amount']/100),2);
 							$adjustment_summary_item['amount'] = $this->format_price($adjustment_summary_item['amount_adjusted']);
@@ -701,7 +750,7 @@ class EM_Booking extends EM_Object{
 	 */
 	function get_event(){
 		global $EM_Event;
-		if( is_object($this->event) && get_class($this->event)=='EM_Event' && $this->event->event_id == $this->event_id ){
+		if( is_object($this->event) && get_class($this->event)=='EM_Event' && ($this->event->event_id == $this->event_id || (EM_ML::$is_ml && $this->event->event_parent == $this->event_id)) ){
 			return $this->event;
 		}elseif( is_object($EM_Event) && $EM_Event->event_id == $this->event_id ){
 			$this->event = $EM_Event;
@@ -726,7 +775,7 @@ class EM_Booking extends EM_Object{
 	
 	/**
 	 * Gets the ticket object this booking belongs to, saves a reference in ticket property
-	 * @return EM_Tickets_Bookings
+	 * @return EM_Tickets_Bookings EM_Tickets_Bookings
 	 */
 	function get_tickets_bookings(){
 		global $wpdb;
@@ -1132,7 +1181,7 @@ class EM_Booking extends EM_Object{
 					break;
 				case '#_BOOKINGADMINURL':
 				case '#_BOOKINGADMINLINK':
-					$bookings_link = esc_url( add_query_arg('booking_id', $this->booking_id, $this->event->get_bookings_url()) );
+					$bookings_link = esc_url( add_query_arg('booking_id', $this->booking_id, $this->get_event()->get_bookings_url()) );
 					if($result == '#_BOOKINGADMINLINK'){
 						$replace = '<a href="'.$bookings_link.'">'.esc_html__('Edit Booking', 'events-manager'). '</a>';
 					}else{
