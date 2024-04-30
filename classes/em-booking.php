@@ -259,12 +259,14 @@ class EM_Booking extends EM_Object{
 					$this->add_error( $this->get_tickets_bookings()->get_errors() );
 				}
 			}
-			//Step 3. email if necessary
+			// Step 3. Run filter for return value before sending emails
+			$this->compat_keys();
+			$return = apply_filters('em_booking_save', ( count($this->errors) == 0 ), $this, $update);
+			//Final Step: email if necessary after all the saving has been done
 			if ( count($this->errors) == 0  && $mail ) {
 				$this->email();
 			}
-			$this->compat_keys();
-			return apply_filters('em_booking_save', ( count($this->errors) == 0 ), $this, $update);
+			return $return;
 		}else{
 			$this->feedback_message = __('There was a problem saving the booking.', 'events-manager');
 			if( !$this->can_manage() ){
@@ -961,7 +963,8 @@ class EM_Booking extends EM_Object{
 		$result = $wpdb->query($wpdb->prepare('UPDATE '.EM_BOOKINGS_TABLE.' SET booking_status=%d WHERE booking_id=%d', array($status, $this->booking_id)));
 		if($result !== false){
 			$this->feedback_message = sprintf(__('Booking %s.','events-manager'), $action_string);
-			if( $email && $this->previous_status != $this->booking_status ){ //email if status has changed
+			$result = apply_filters('em_booking_set_status', $result, $this); // run the filter before emails go out, in case others need to hook in first
+			if( $result && $email && $this->previous_status != $this->booking_status ){ //email if status has changed
 				if( $this->email() ){
 				    if( $this->mails_sent > 0 ){
 				        $this->feedback_message .= " ".__('Email Sent.','events-manager');
@@ -976,9 +979,9 @@ class EM_Booking extends EM_Object{
 			//errors should be logged by save()
 			$this->feedback_message = sprintf(__('Booking could not be %s.','events-manager'), $action_string);
 			$this->add_error(sprintf(__('Booking could not be %s.','events-manager'), $action_string));
-			$result =  false;
+			$result =  apply_filters('em_booking_set_status', false, $this);
 		}
-		return apply_filters('em_booking_set_status', $result, $this);
+		return $result;
 	}
 	
 	/**
@@ -1051,7 +1054,9 @@ class EM_Booking extends EM_Object{
 		$replaces = array();
 		foreach($placeholders[1] as $key => $result) {
 			$replace = '';
-			$full_result = $placeholders[0][$key];		
+			$full_result = $placeholders[0][$key];
+			$placeholder_atts = array($result);
+			if( !empty($placeholders[3][$key]) ) $placeholder_atts[] = $placeholders[3][$key];
 			switch( $result ){
 				case '#_BOOKINGID':
 					$replace = $this->booking_id;
@@ -1125,11 +1130,20 @@ class EM_Booking extends EM_Object{
 					em_locate_template('emails/bookingsummary.php', true, array('EM_Booking'=>$this));
 					$replace = ob_get_clean();
 					break;
+				case '#_BOOKINGADMINURL':
+				case '#_BOOKINGADMINLINK':
+					$bookings_link = esc_url( add_query_arg('booking_id', $this->booking_id, $this->event->get_bookings_url()) );
+					if($result == '#_BOOKINGADMINLINK'){
+						$replace = '<a href="'.$bookings_link.'">'.esc_html__('Edit Booking', 'events-manager'). '</a>';
+					}else{
+						$replace = $bookings_link;
+					}
+					break;
 				default:
 					$replace = $full_result;
 					break;
 			}
-			$replaces[$full_result] = apply_filters('em_booking_output_placeholder', $replace, $this, $full_result, $target);
+			$replaces[$full_result] = apply_filters('em_booking_output_placeholder', $replace, $this, $full_result, $target, $placeholder_atts);
 		}
 		//sort out replacements so that during replacements shorter placeholders don't overwrite longer varieties.
 		krsort($replaces);
@@ -1155,6 +1169,8 @@ class EM_Booking extends EM_Object{
 		
 		//Make sure event matches booking, and that booking used to be approved.
 		if( $this->booking_status !== $this->previous_status || $force_resend ){
+			// before we format dates or any other language-specific placeholders, make sure we're translating the site language, not the user profile language in the admin area (e.g. if an admin is sending a booking confirmation email), assuming this isn't a ML-enabled site.
+			if( !EM_ML::$is_ml && is_admin() && EM_ML::$wplang != get_user_locale() ) EM_ML::switch_locale(EM_ML::$wplang);
 			do_action('em_booking_email_before_send', $this);
 			//get event info and refresh all bookings
 			$EM_Event = $this->get_event(); //We NEED event details here.
@@ -1207,6 +1223,7 @@ class EM_Booking extends EM_Object{
 				}
 			}
 			do_action('em_booking_email_after_send', $this);
+			if( !EM_ML::$is_ml && is_admin() ) EM_ML::restore_locale(); // restore the locale back for the rest of the site, which will happen if we switched it earlier
 		}
 		return apply_filters('em_booking_email', $result, $this, $email_admin, $force_resend, $email_attendee);
 		//TODO need error checking for booking mail send

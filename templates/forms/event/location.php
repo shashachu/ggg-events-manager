@@ -4,7 +4,7 @@ $required = apply_filters('em_required_html','<i>*</i>');
 
 //determine location types (if neexed)
 $location_types = array();
-if( !get_option('dbem_require_location') && !get_option('dbem_use_select_for_locations') ){
+if( !get_option('dbem_require_location') ){
 	$location_types[0] = array(
 		'selected' =>  $EM_Event->location_id === '0' || $EM_Event->location_id === 0,
 		'description' => esc_html__('No Location','events-manager'),
@@ -29,30 +29,21 @@ foreach( EM_Event_Locations\Event_Locations::get_types() as $event_location_type
 ?>
 <div class="em-input-field em-input-field-select em-location-types <?php if( count($location_types) == 1 ) echo 'em-location-types-single'; ?>">
 	<label><?php esc_html_e ( 'Location Type', 'events-manager')?></label>
-	<select name="location_type" class="em-location-types-select">
+	<select name="location_type" class="em-location-types-select" data-active="<?php echo esc_attr($EM_Event->event_location_type); ?>">
 		<?php foreach( $location_types as $location_type => $location_type_option ): ?>
 		<option value="<?php echo esc_attr($location_type); ?>" <?php if( !empty($location_type_option['selected']) ) echo 'selected="selected"'; ?> data-display-class="<?php if( !empty($location_type_option['display-class']) ) echo esc_attr($location_type_option['display-class']); ?>">
 			<?php echo esc_html($location_type_option['description']); ?>
 		</option>
 		<?php endforeach; ?>
 	</select>
-	<script type="text/javascript">
-		jQuery(document).ready(function($){
-			$('.em-location-types .em-location-types-select').change(function(){
-				let el = $(this);
-				if( el.val() == 0 ){
-					$('.em-location-type').hide();
-				}else{
-					let location_type = el.find('option:selected').data('display-class');
-					$('.em-location-type').hide();
-					$('.em-location-type.'+location_type).show();
-					if( location_type != 'em-location-type-place' ){
-						jQuery('#em-location-reset a').trigger('click');
-					}
-				}
-			}).trigger('change');
-		});
-	</script>
+	<?php if( $EM_Event->has_event_location() ): ?>
+		<div class="em-location-type-delete-active-alert em-notice-warning">
+			<div class="warning-bold">
+				<p><em><?php esc_html_e('You are switching location type, if you update this event your event previous location data will be deleted.', 'events-manager'); ?></em></p>
+			</div>
+			<?php $EM_Event->get_event_location()->admin_delete_warning(); ?>
+		</div>
+	<?php endif; ?>
 </div>
 <?php if( EM_Locations::is_enabled() ): ?>
 <div id="em-location-data" class="em-location-data em-location-type em-location-type-place <?php if( count($location_types) == 1 ) echo 'em-location-type-single'; ?>">
@@ -68,6 +59,15 @@ foreach( EM_Event_Locations\Event_Locations::get_types() as $event_location_type
 				<td>
 					<select name="location_id" id='location-select-id' size="1">
 						<?php
+						if ( count($location_types) == 1 && !get_option('dbem_require_location') ){ // we don't consider optional locations as a type for ddm
+							?>
+							<option value="0"><?php esc_html_e('No Location','events-manager'); ?></option>
+							<?php
+						}elseif( empty(get_option('dbem_default_location')) ){
+							?>
+							<option value="0"><?php esc_html_e('Select Location','events-manager'); ?></option>
+							<?php
+						}
 						$ddm_args = array('private'=>$EM_Event->can_manage('read_private_locations'));
 						$ddm_args['owner'] = (is_user_logged_in() && !current_user_can('read_others_locations')) ? get_current_user_id() : false;
 						$locations = EM_Locations::get($ddm_args);
@@ -173,7 +173,7 @@ foreach( EM_Event_Locations\Event_Locations::get_types() as $event_location_type
 <div class="em-event-location-data">
 	<?php foreach( EM_Event_Locations\Event_Locations::get_types() as $event_location_type => $EM_Event_Location_Class ): /* @var EM_Event_Locations\Event_Location $EM_Event_Location_Class */ ?>
 		<?php if( $EM_Event_Location_Class::is_enabled() ): ?>
-			<div class="em-location-type em-event-location-type-<?php echo esc_attr($event_location_type); ?>">
+			<div class="em-location-type em-event-location-type-<?php echo esc_attr($event_location_type); ?>  <?php if( count($location_types) == 1 ) echo 'em-location-type-single'; ?>">
 			<?php $EM_Event_Location_Class::load_admin_template(); ?>
 			</div>
 		<?php endif; ?>

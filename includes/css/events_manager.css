@@ -79,6 +79,12 @@ div#em-loading { position:absolute; width:100%; height:100%; background:#FFFFFF 
 			div.css-search.no-search-main div.em-search-advanced.visible label { display:none; }
 			div.css-search div.em-search-options { text-align:right; }
 
+/* General Notices */
+#event-form .em-notice-warning, #post .em-notice-warning { margin:10px 0px; padding:15px 20px; border-left: 4px solid #ffa500; }
+#event-form .em-notice-warning h4, #post .em-notice-warning h4 { margin-top:0px; }
+#event-form .em-notice-warning div.warning-bold, #post .em-notice-warning div.warning-bold{ color:#c45500; font-weight: bold; }
+#event-form .em-notice-warning div.warning-bold p, #post .em-notice-warning div.warning-bold p { margin-top:0px; font-size:14px; }
+
 /* Events List */
 	.css-events-list table.events-table { border-spacing: 0px; border-collapse: collapse; }
 	.css-events-list table.events-table td { padding:0px; }
@@ -109,10 +115,14 @@ div#em-loading { position:absolute; width:100%; height:100%; background:#FFFFFF 
 		div.em-booking-login label { display:inline-block; width:90px; }
 		div.em-booking-login p{ margin:10px 0px !important; padding:0px !important;	}	
 		div.em-booking-login input { margin:0px; }
-		
+
+/* Locations Admin */
+#em-wrapper #locations-filter .subsubsub .current { font-weight:bold; }
+#em-wrapper .em-locations-admin-list .em-button { float:right; }
+
 /* Events Admin */
-#em-wrapper #posts-filter .subsubsub .current { font-weight:bold; }		
-#em-wrapper .em-events-admin-list .em-button, #em-wrapper .em-events-admin-list .em-button { float:right; }
+#em-wrapper #posts-filter .subsubsub .current { font-weight:bold; }
+#em-wrapper .em-events-admin-list .em-button { float:right; }
 		
 /* Add Event Form */
 	#event-form h4 { margin:25px 0px 15px 0px; font-weight:bold; }
@@ -161,7 +171,9 @@ div#em-loading { position:absolute; width:100%; height:100%; background:#FFFFFF 
 	/* The editor */
 		#wp-em-editor-content-wrap table { margin-bottom:0px; }
 	/* Location form */
+		#event-form .em-location-types-single { display:none; visibility: hidden; }
 		#event-form .em-location-type { border-top: 1px solid #dedede; margin-top:20px; padding-top:20px; }
+		#event-form .em-location-type-single .em-location-type { border-top:0; margin-top:0; padding-top:0; }
 		#event-form .em-location-type.em-location-type-single { border:none; }
 		#event-form .em-location-type p:first-child { margin-top:0; }
 		#event-form div.em-location-data table { float:left; margin:0px 15px 0px 0px; }
@@ -170,6 +182,7 @@ div#em-loading { position:absolute; width:100%; height:100%; background:#FFFFFF 
 		#event-form .em-input-field label { display: block; margin-bottom:5px; }
 		#event-form .em-input-field.em-input-field-boolean label { display: inline-block; }
 		#event-form .em-input-field em { display: block; margin-top:2px; }
+		#event-form .em-location-type-delete-active-alert { display:none; visibility: hidden; }
 		#em-location-data table.em-location-data td, #em-location-data table.em-location-data th { vertical-align:top; border:none; }
 		#em-location-data table.em-location-data select { width:100%; }
 		#em-location-data table.em-location-data { width:50%; float:left; border:none; }
