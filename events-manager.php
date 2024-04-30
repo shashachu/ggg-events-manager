@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: GGG Events Manager
-Version: 5.9.810
+Version: 5.9.910
 Plugin URI: https://github.com/shashachu/ggg-events-manager/
 Description: Customized version of the Events Manager plugin by Marcus Sykes, tailored towards trooping signups for the Golden Gate Garrison.
 Author: Marcus Sykes, Sha Sha Chu
@@ -40,7 +40,7 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 $myUpdateChecker->getVcsApi()->enableReleaseAssets();
 
 // Setting constants
-define('EM_VERSION', 5.9810); //self expanatory
+define('EM_VERSION', 5.9910); //self expanatory
 define('EM_PRO_MIN_VERSION', 2.6712); //self expanatory
 define('EM_PRO_MIN_VERSION_CRITICAL', 2.377); //self expanatory
 define('EM_DIR', dirname( __FILE__ )); //an absolute path to this directory
@@ -82,6 +82,7 @@ include('classes/em-exception.php');
 include('classes/em-options.php');
 include('classes/em-object.php');
 include('classes/em-datetime.php');
+include('classes/em-datetimezone.php');
 include('classes/em-taxonomy-term.php');
 include('classes/em-taxonomy-terms.php');
 include('classes/em-taxonomy-frontend.php');
@@ -679,6 +680,7 @@ function em_locate_template( $template_name, $load=false, $the_args = array() ) 
 	}
 	$located = apply_filters('em_locate_template', $located, $template_name, $load, $the_args);
 	if( $located && $load ){
+		$the_args = apply_filters('em_locate_template_args_'.$template_name, $the_args, $located);
 		if( is_array($the_args) ) extract($the_args);
 		include($located);
 	}

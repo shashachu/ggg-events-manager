@@ -5,7 +5,7 @@ Tags: bookings, calendar, tickets, events, buddypress, event management, google 
 Text Domain: events-manager
 Requires at least: 5.2
 Tested up to: 5.6
-Stable tag: 5.9.810
+Stable tag: 5.9.910
 Requires PHP: 5.3
 
 Fully featured event registration management including recurring events, locations management, calendar, Google map integration, booking management
@@ -115,7 +115,66 @@ See our [FAQ](http://wp-events-plugin.com/documentation/faq/) page, which is upd
 6. Manage attendees with various booking reports
 
 == Changelog ==
-= = 5.9.810 =
+= 5.9.910 =
+* 5.9.9 with GGG mods
+
+= 5.9.9 =
+* updated EM_DateTime and EM_DateTimeZone to remove PHP <5.3 backports and also make use of UTC offset support since PHP 5.5.10 (since WP now is requiring 5.6 as a minimum)
+* fixed location dropdown not showing option for no location or a placeholder if physical locations are the only location types enabled
+* fixed front-end event editor showing events list rather than submission form when there's a validation error
+* fixed bug where re-saving multilingual recurring events sets parent ids out of sync and causing booking linking issues with translated events
+* fixed potential minor CSRF vulnerability in oAuth base class where state could be ommitted when verifying/authorizing account, props to [@Lenon](https://lenonleite.com.br/en/2020/09/19/explorando-vulnerabilidade-em-operadores-logicos-isset-algumacoisa/)
+* fixed event times output on bookings table not showing time according to formatting settings
+* added 5th argument with array of segmented placeholder meta to _output_placeholder filters of events, locations, bookings and taxonomies
+* tweaked placeholder regex to allow underscores in placeholder names e.g. #_PREVIOUSLY_INVALID_PLACEHOLDER
+* added _SITE time-related placeholder variations which display event time relative to website timezone,
+* added _LOCAL time-related placeholder variations which display event time relative to user's browser timezone (based on JS),
+* fixed EM_Event::output_times() not using custom $all_day_message
+* fixed booking table custom fields with accented names not being displayed or exported properly
+* updated jQuery UI CSS theme
+* updated PHPMailer loading location due to breaks in 5.5
+* added #_EVENTDATES_LOCAL
+* updated placeholder docs
+* fixed save and status change filters firing before emails are sent which can cause irregular behaviour in add-ons (e.g. Zoom join links)
+* optimized EM_Bookings::has_booking() function to prevent unecessary loading of bookings to event
+* fixed fatal errors on ical generation if mb_string extension disabled in PHP
+* added em_bp_menu_sub_nav and em_bp_menu_main_nav filters to allow easy BuddyPress/BuddyBoss menu overriding
+* added data deletion and warning of deletion when switching location types,
+* moved JS out of location selection template into main JS file
+* changed Event_Location data handling so that event location data is kept within the object EM_Event->event_location rather than in EM_Event->event_location_data
+* fixed Event_Locations::is_enabled() creating fatal errors if add-on event location plugins get deactivated whilst event location is still 'enabled' in settings
+* fixed deletion of previous event location data occurring on get_post() rather than save() and added a temporary event_location_deleted property to EM_Event to contain deletable event location
+* changed recurring table field to require a non-null value and default to 0 to prevent erratic behaviour if recurrences get saved with NULL in random edge cases
+* removed some old migration update code for v4 > v5 update (more to be removed at a later date)
+* added em_event_save_events_exclude_update_meta_keys allowing add-ons to prevent overwriting meta keys when updating recurrences
+* added docs for event location types and a filter for adding custom placeholder docs to the help page
+* fixed dates and possibly other placeholders not showing in site locale if admin triggers emails with a different user locale
+* fixed scope search issues on search form when default scope is not 'future' and search dates left blank
+* fixed template location typo preventing em_get_events_list_grouped() from working
+* fixed admin columns not showing as per screen reader preferences when all cols are chosen to be displayed
+* fixed bp showing booking tab/info when bookings are disabled (props @raruto)
+* fixed display issues on static home page (other than EM events page) containing shortcode showing paginated events/locations/taxonomies
+* fixed broken link for datepicker formatting docs on settings page
+* fixed PHP errors on BuddyPress "my group events" template
+* added #_BOOKINGADMINURL and #_BOOKINGADMINLINK placeholders to booking email templates
+* added alt attribute to event thumbnails in MS Globals mode
+* fixed Polish zloty missing symbols
+* fixed 'no location' option not showing if dropdown option for physical locations enabled
+* fixed booking cutoff times defaulting to 12am rather than event start time
+* fixed booking cutoff times not getting set upon initial recurring event creation
+* fixed trashed events showing up on front-end event editor as pending
+* fixed JS issues causing ticket editor not reflecting changes during edit process before saving
+* fixed Yoast SEO deprecated log warning for usage of WPSEO_Utils::get_title_separator() in > v15.2
+* changed default time to WP format upon installation
+* added my/all events links to front-end events admin for those with admin capabilities
+* updated dev update checker to allow EM add-ons
+* fixed duplication issues for custom event locations due to lack of cloning the event location within the cloned event
+* added organizer property to ical feed and em_locate_template_args_... filter to enable it with (see https://pastebin.com/d2y5qXPy)
+* added better booking button error feedback and a em_booking_button_response JS event
+* changed EM Pro update warning to be dismissible site-wide and persist only on admin/network settings page
+* removed use of date_i18n() in place of EM_DateTime->format() i.e. wp_date()
+
+= 5.9.810 =
 * 5.9.8.1 with GGG mods
 
 = 5.9.8.1 =

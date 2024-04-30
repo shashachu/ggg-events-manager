@@ -9,7 +9,7 @@
  * @return string
  */
 function em_content($page_content) {
-	global $post, $wpdb, $wp_query, $EM_Event, $EM_Location, $EM_Category;
+	global $post, $EM_Event, $EM_Location, $EM_Notices;
 	if( empty($post) || empty($post->ID) ) return $page_content; //fix for any other plugins calling the_content outside the loop
 	$events_page_id = get_option ( 'dbem_events_page' );
 	$locations_page_id = get_option( 'dbem_locations_page' );
@@ -254,7 +254,7 @@ add_filter ( 'wp_title', 'em_content_wp_title',100,3 ); //override other plugin 
  * @return string
  */
 function em_content_wpseo_title($title, $sep = '', $seplocation = ''){
-	if( class_exists('WPSEO_Utils') && method_exists('WPSEO_Utils', 'get_title_separator') ){
+	if( class_exists('WPSEO_Utils') && method_exists('WPSEO_Utils', 'get_title_separator') && version_compare(WPSEO_VERSION, '15.2', '<') ){
 		$sep = WPSEO_Utils::get_title_separator();
 	}elseif( !is_string( $sep ) ){
 		$sep = '';

@@ -139,7 +139,7 @@ function em_create_events_table() {
 		event_parent bigint(20) unsigned NULL DEFAULT NULL,
 		event_slug VARCHAR( 200 ) NULL DEFAULT NULL,
 		event_owner bigint(20) unsigned DEFAULT NULL,
-		event_status tinyint(1) unsigned NULL DEFAULT NULL,
+		event_status tinyint(1) NULL DEFAULT NULL,
 		event_name text NULL DEFAULT NULL,
 		event_start_date date NULL DEFAULT NULL,
 		event_end_date date NULL DEFAULT NULL,
@@ -161,7 +161,7 @@ function em_create_events_table() {
 		recurrence_id bigint(20) unsigned NULL DEFAULT NULL,
   		event_date_created datetime NULL DEFAULT NULL,
   		event_date_modified datetime NULL DEFAULT NULL,
-		recurrence tinyint(1) unsigned NULL DEFAULT 0,
+		recurrence tinyint(1) unsigned NOT NULL DEFAULT 0,
 		recurrence_interval int(4) NULL DEFAULT NULL,
 		recurrence_freq tinytext NULL DEFAULT NULL,
 		recurrence_byday tinytext NULL DEFAULT NULL,
@@ -178,28 +178,14 @@ function em_create_events_table() {
 
 	if( $wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name ){
 		dbDelta($sql);
-		//Add default events
-		$in_one_week = date('Y-m-d', time() + 60*60*24*7);
-		$in_four_weeks = date('Y-m-d', time() + 60*60*24*7*4);
-		$in_one_year = date('Y-m-d', time() + 60*60*24*365);
-		/*
-		DEPRICATED - kept here as an example for how migrations from the wp_em_events table is fairly easy
-		$wpdb->query("INSERT INTO ".$table_name." (event_name, event_start_date, event_end_date, event_start_time, event_end_time, location_id, event_slug, event_owner, event_status, post_id) VALUES ('Orality in James Joyce Conference', '$in_one_week', '$in_one_week', '16:00:00', '18:00:00', 1, 'oralty-in-james-joyce-conference','".get_current_user_id()."',1,0)");
-		$wpdb->query("INSERT INTO ".$table_name." (event_name, event_start_date, event_end_date, event_start_time, event_end_time, location_id, event_slug, event_owner, event_status, post_id)	VALUES ('Traditional music session', '$in_four_weeks', '$in_four_weeks', '20:00:00', '22:00:00', 2, 'traditional-music-session','".get_current_user_id()."',1,0)");
-		$wpdb->query("INSERT INTO ".$table_name." (event_name, event_start_date, event_end_date, event_start_time, event_end_time, location_id, event_slug, event_owner, event_status, post_id) VALUES ('6 Nations, Italy VS Ireland', '$in_one_year', '$in_one_year', '22:00:00', '23:00:00', 3, '6-nations-italy-vs-ireland','".get_current_user_id()."',1,0)");
-		em_migrate_events($wpdb->get_results('SELECT * FROM '.$table_name, ARRAY_A));
-		*/
-	}else{
-		if( get_option('dbem_version') != '' && get_option('dbem_version') < 4.939 ){
-			//if updating from version 4 (4.934 is beta v5) then set all statuses to 1 since it's new
-			$wpdb->query("ALTER TABLE $table_name CHANGE event_notes post_content longtext NULL DEFAULT NULL");
-			$wpdb->query("ALTER TABLE $table_name CHANGE event_name event_name text NULL DEFAULT NULL");
-			$wpdb->query("ALTER TABLE $table_name CHANGE location_id location_id bigint(20) unsigned NULL DEFAULT NULL");
-			$wpdb->query("ALTER TABLE $table_name CHANGE recurrence_id recurrence_id bigint(20) unsigned NULL DEFAULT NULL");
-			$wpdb->query("ALTER TABLE $table_name CHANGE event_start_time event_start_time time NULL DEFAULT NULL");
-			$wpdb->query("ALTER TABLE $table_name CHANGE event_end_time event_end_time time NULL DEFAULT NULL");
-			$wpdb->query("ALTER TABLE $table_name CHANGE event_start_date event_start_date date NULL DEFAULT NULL");
+	}elseif( get_option('dbem_version') != '' ){
+		if( get_option('dbem_version') < 5.984 ){
+			// change the recurrence flag to a required field defaulting to 0, to avoid missing recurrences in EM_Events::get() due to wayward null values
+			$wpdb->query("UPDATE $table_name SET recurrence = 0 WHERE recurrence IS NULL");
+			$wpdb->query("ALTER TABLE $table_name CHANGE `recurrence` `recurrence` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0'");
+			$wpdb->query("ALTER TABLE $table_name CHANGE `event_status` `event_status` TINYINT(1) NULL DEFAULT NULL;");
 		}
+		// GGG
 		if( get_option('dbem_version') != '' && get_option('dbem_version') < 5.956 ){
 			// If updating from version < 5.956, add in the RSVP Date for ECs
 			$wpdb->query("ALTER TABLE $table_name ADD event_ec_rsvp_date date NULL DEFAULT NULL");
@@ -487,7 +473,7 @@ function em_add_options() {
 		'dbem_data' => array(), //used to store admin-related data such as notice flags and other row keys that may not always exist in the wp_options table
 		//time formats
 		'dbem_time_format' => get_option('time_format'),
-		'dbem_date_format' => 'd/m/Y',
+		'dbem_date_format' => get_option('date_format'),
 		'dbem_date_format_js' => 'dd/mm/yy',
 		'dbem_dates_separator' => ' - ',
 		'dbem_times_separator' => ' - ',
@@ -958,6 +944,15 @@ function em_add_options() {
 
 function em_upgrade_current_installation(){
 	global $wpdb, $wp_locale, $EM_Notices;
+	
+	// Check EM Pro update min
+	if( defined('EMP_VERSION') && EMP_VERSION < EM_PRO_MIN_VERSION && !defined('EMP_DISABLE_WARNINGS') ) {
+		$message = esc_html__('There is a newer version of Events Manager Pro which is recommended for this current version of Events Manager as new features have been added. Please go to the plugin website and download the latest update.','events-manager');
+		$EM_Admin_Notice = new EM_Admin_Notice(array('name' => 'em-pro-updates', 'who' => 'admin', 'where' => 'all', 'message' => "$message"));
+		EM_Admin_Notices::add($EM_Admin_Notice, is_multisite());
+	}
+	
+	
 	if( !get_option('dbem_version') ){ add_option('dbem_credits',1); }
 	if( get_option('dbem_version') != '' && get_option('dbem_version') < 5 ){
 		//make events, cats and locs pages
@@ -1210,6 +1205,21 @@ function em_upgrade_current_installation(){
 		$message = sprintf( $message, '<a href="http://wp-events-plugin.com/documentation/location-types/" target="_blank">'. esc_html__('documentation', 'events-manager')).'</a>';
 		$EM_Admin_Notice = new EM_Admin_Notice(array( 'name' => 'location-types-update', 'who' => 'admin', 'where' => 'all', 'message' => "$message" ));
 		EM_Admin_Notices::add($EM_Admin_Notice, is_multisite());
+	}
+	if( get_option('dbem_version') != '' && get_option('dbem_version') < 5.9821 ){
+		// recreate all event_parent records in post meta
+		$sql = "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_event_parent' AND post_id IN (SELECT post_id FROM ".EM_EVENTS_TABLE.")";
+		$wpdb->query($sql);
+		$sql = "INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) SELECT post_id, '_event_parent', event_parent FROM ".EM_EVENTS_TABLE." WHERE event_parent IS NOT NULL";
+		if( EM_MS_GLOBAL ){
+			// do just this blog, other blogs will update themselves when loaded
+			if( is_main_site() ){
+				$sql .= ' AND (blog_id='.absint(get_current_blog_id()).' OR blog_id=0)';
+			}else{
+				$sql .= ' AND blog_id='.absint(get_current_blog_id());
+			}
+		}
+		$wpdb->query($sql);
 	}
 	// GGG
 	if( get_option('dbem_version') != '' && get_option('dbem_version') < 5.951 ){
