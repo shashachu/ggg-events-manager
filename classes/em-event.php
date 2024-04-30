@@ -447,7 +447,8 @@ class EM_Event extends EM_Object{
 	            $this->event_date_created = $row->event_date_created;
 	            return $this->$var;
 	        }
-	    }elseif( in_array($var, array('event_start_date', 'event_start_time', 'event_end_date', 'event_end_time', 'event_rsvp_date', 'event_rsvp_time')) ){
+		// GGG
+	    }elseif( in_array($var, array('event_start_date', 'event_start_time', 'event_end_date', 'event_end_time', 'event_rsvp_date', 'event_rsvp_time', 'event_ec_rsvp_date')) ){
 	    	return $this->$var;
 	    }elseif( $var == 'event_timezone' ){
 	    	return $this->get_timezone()->getName();
