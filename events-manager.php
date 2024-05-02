@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: GGG Events Manager
-Version: 5.9.910
+Version: 5.9.1000
 Plugin URI: https://github.com/shashachu/ggg-events-manager/
 Description: Customized version of the Events Manager plugin by Marcus Sykes, tailored towards trooping signups for the Golden Gate Garrison.
 Author: Marcus Sykes, Sha Sha Chu
@@ -10,7 +10,7 @@ Text Domain: ggg-events-manager
 */
 
 /*
-Copyright (c) 2020, Marcus Sykes
+Copyright (c) 2021, Marcus Sykes
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 $myUpdateChecker->getVcsApi()->enableReleaseAssets();
 
 // Setting constants
-define('EM_VERSION', 5.9910); //self expanatory
+define('EM_VERSION', 5.99911); //self expanatory, although version currently may not correspond directly with published version number. until 6.0 we're stuck updating 5.999.x
 define('EM_PRO_MIN_VERSION', 2.6712); //self expanatory
 define('EM_PRO_MIN_VERSION_CRITICAL', 2.377); //self expanatory
 define('EM_DIR', dirname( __FILE__ )); //an absolute path to this directory
@@ -692,7 +692,7 @@ function em_locate_template( $template_name, $load=false, $the_args = array() ) 
  * Since the options filter doesn't have a catchall filter, we send all filters to the __call function and figure out the option that way.
  */
 class EM_Formats {
-	function __construct(){ add_action( 'template_redirect', array(&$this, 'add_filters')); }
+	function __construct(){ add_action( 'events_manager_loaded', array(&$this, 'add_filters')); }
 	function add_filters(){
 		//you can hook into this filter and activate the format options you want to override by supplying the wp option names in an array, just like in the database.
 		$formats = apply_filters('em_formats_filter', array());

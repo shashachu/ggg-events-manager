@@ -694,7 +694,7 @@ function em_init_actions() {
 		fclose($handle);
 		exit();
 	}
-}  
+}
 add_action('init','em_init_actions',11);
 
 /**

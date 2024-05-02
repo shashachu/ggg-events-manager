@@ -12,13 +12,13 @@
 $cal_count = count($calendar['cells']); //to prevent an extra tr
 $col_count = $tot_count = 1; //this counts collumns in the $calendar_array['cells'] array
 $col_max = count($calendar['row_headers']); //each time this collumn number is reached, we create a new collumn, the number of cells should divide evenly by the number of row_headers
-$EM_DateTime = new EM_DateTime($calendar['month_start']);
+$EM_DateTime = new EM_DateTime($calendar['month_start'], 'UTC');
 ?>
 <table class="em-calendar fullcalendar">
 	<thead>
 		<tr>
 			<td><a class="em-calnav full-link em-calnav-prev" href="<?php echo esc_url($calendar['links']['previous_url']); ?>">&lt;&lt;</a></td>
-			<td class="month_name" colspan="5"><?php echo esc_html($EM_DateTime->format(get_option('dbem_full_calendar_month_format'))); ?></td>
+			<td class="month_name" colspan="5"><?php echo esc_html($EM_DateTime->i18n(get_option('dbem_full_calendar_month_format'))); ?></td>
 			<td><a class="em-calnav full-link em-calnav-next" href="<?php echo esc_url($calendar['links']['next_url']); ?>">&gt;&gt;</a></td>
 		</tr>
 	</thead>
