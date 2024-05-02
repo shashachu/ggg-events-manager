@@ -1221,10 +1221,6 @@ function em_upgrade_current_installation(){
 		}
 		$wpdb->query($sql);
 	}
-	// GGG
-	if( get_option('dbem_version') != '' && get_option('dbem_version') < 5.951 ){
-		em_create_costumes_table();
-	}
 }
 
 function em_set_mass_caps( $roles, $caps ){

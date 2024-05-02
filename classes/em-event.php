@@ -1563,7 +1563,7 @@ class EM_Event extends EM_Object{
 	public function end( $utc_timezone = false ){
 		return apply_filters('em_event_end', $this->get_datetime('end', $utc_timezone), $this);
 	}
-
+	
 	/**
 	 * GGG: Returns an EM_DateTime object of the EC RSVP date in local timezone of event
 	 * @param bool $utc_timezone Returns EM_DateTime with UTC timezone if set to true, returns local timezone by default.
