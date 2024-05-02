@@ -16,22 +16,7 @@ function em_admin_menu(){
    		$bookings_num = '';
 		$bookings_pending_count = 0;
    	}
-	//Count pending events
-	$events_num = '';
-	$events_pending_count = EM_Events::count(array('status'=>0, 'scope'=>'all', 'blog'=>get_current_blog_id()));
-	//TODO Add flexible permissions
-	if($events_pending_count > 0){
-		$events_num = '<span class="update-plugins count-'.$events_pending_count.'"><span class="plugin-count">'.$events_pending_count.'</span></span>';
-	}
-	//Count pending recurring events
-	$events_recurring_num = '';
-	$events_recurring_pending_count = EM_Events::count(array('status'=>0, 'recurring'=>1, 'scope'=>'all', 'blog'=>get_current_blog_id()));
-	//TODO Add flexible permissions
-	if($events_recurring_pending_count > 0){
-		$events_recurring_num = '<span class="update-plugins count-'.$events_recurring_pending_count.'"><span class="plugin-count">'.$events_recurring_pending_count.'</span></span>';
-	}
-	$both_pending_count = apply_filters('em_items_pending_count', $events_pending_count + $bookings_pending_count + $events_recurring_pending_count);
-	$both_num = ($both_pending_count > 0) ? '<span class="update-plugins count-'.$both_pending_count.'"><span class="plugin-count">'.$both_pending_count.'</span></span>':'';
+	// GGG - Remove pending event count
   	// Add a submenu to the custom top-level menu:
    	$plugin_pages = array();
    	if( get_option('dbem_rsvp_enabled') ){
@@ -46,11 +31,11 @@ function em_admin_menu(){
 	}
 	$plugin_pages = apply_filters('em_create_events_submenu',$plugin_pages);
 	//We have to modify the menus manually
-	if( !empty($both_num) ){ //Main Event Menu
+	if( !empty($bookings_num) ){ //Main Event Menu
 		//go through the menu array and modify the events menu if found
 		foreach ( (array)$menu as $key => $parent_menu ) {
 			if ( $parent_menu[2] == 'edit.php?post_type='.EM_POST_TYPE_EVENT ){
-				$menu[$key][0] = $menu[$key][0]. $both_num;
+				$menu[$key][0] = $menu[$key][0]. $bookings_num;
 				break;
 			}
 		}
