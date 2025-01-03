@@ -19,7 +19,9 @@ if( count($EM_Bookings->bookings) > 0 ){
 					if (empty($ticket_type) && count((array)$ticket_bookings) > 0) {
 						$ticket_type = $ticket_name;
 					}
-					$bookings_by_ticket[$ticket_name][] = array('name' => $EM_Booking->get_person()->get_name(),
+					$bookings_by_ticket[$ticket_name][] = array(
+							'name' => $EM_Booking->get_person()->get_name(),
+							'user_id' => $EM_Booking->get_person()->ID,
 							'ticket_type' => $ticket_type,
 							'email' => $EM_Booking->person->user_email);
 				}
@@ -41,6 +43,11 @@ if( count($EM_Bookings->bookings) > 0 ){
 		foreach ($bookings as $booking) {
 			echo '<li>'. $booking['name'];
 			if ($is_costumed) {
+				$userId = $booking['user_id'];
+				$tkid = get_user_meta($userId, 'tkid_number', true);
+				if (!empty($tkid)) {
+					echo ' (' . $tkid . ')';
+				}
 				echo ' - ' . $booking['ticket_type'];
 			}
 			echo '</li>';
