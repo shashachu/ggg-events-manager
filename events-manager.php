@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: GGG Events Manager
-Version: 5.12.2
+Version: 5.12.3
 Plugin URI: https://github.com/shashachu/ggg-events-manager/
 Description: Customized version of the Events Manager plugin by Marcus Sykes, tailored towards trooping signups for the Golden Gate Garrison.
 Author: Marcus Sykes, Sha Sha Chu
@@ -40,7 +40,7 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 $myUpdateChecker->getVcsApi()->enableReleaseAssets();
 
 // Setting constants
-define('EM_VERSION', 5.99912); //self expanatory, although version currently may not correspond directly with published version number. until 6.0 we're stuck updating 5.999.x
+define('EM_VERSION', 5.99913); //self expanatory, although version currently may not correspond directly with published version number. until 6.0 we're stuck updating 5.999.x
 define('EM_PRO_MIN_VERSION', 2.6712); //self expanatory
 define('EM_PRO_MIN_VERSION_CRITICAL', 2.377); //self expanatory
 define('EM_DIR', dirname( __FILE__ )); //an absolute path to this directory
